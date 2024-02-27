@@ -15,9 +15,4 @@ jobs:
 
       - name: Copy v1.js to Droplet
         run: |
-          echo "Copying v1.js to Droplet..."
-          echo "${{ secrets.SSH_PRIVATE_KEY }}"
-          ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }}
-          echo "Copy complete."
-
-# Puedes agregar más pasos según sea necesario, como comandos de notificación, verificación, etc.
+          scp -i ${{ secrets.SSH_PRIVATE_KEY }} v1.js ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }}:/library/v1
