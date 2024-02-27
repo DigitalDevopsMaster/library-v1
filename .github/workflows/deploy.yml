@@ -1,4 +1,4 @@
-name: Copy Library to Remote
+name: Deploy to Droplet
 
 on:
   push:
@@ -6,17 +6,17 @@ on:
       - main
 
 jobs:
-  copy_library:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Copy Library to Remote
+      - name: Copy v1.js to Droplet
         run: |
-          ./deploy.sh
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          REMOTE_USER: ${{ secrets.REMOTE_USER }}
-          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          echo "Copying v1.js to Droplet..."
+          scp -i ${{ secrets.SSH_PRIVATE_KEY }} v1.js ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }}:/library/v1
+          echo "Copy complete."
+
+# Puedes agregar más pasos según sea necesario, como comandos de notificación, verificación, etc.
