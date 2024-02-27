@@ -17,10 +17,10 @@ jobs:
         run: echo "^/etc/.*$|^/run/.*$" > exclude.txt
 
       - name: Transfer Library to Droplet
-        run: |
-          cat exclude.txt
-          scp -i ${{ secrets.SSH_PRIVATE_KEY }} \
-              -o StrictHostKeyChecking=no \
-              -o UserKnownHostsFile=/dev/null \
-              -r $(grep -v -f exclude.txt <(ls -A)) \
-              ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }}:/library/v1
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: ${{ secrets.DROPLET_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "/"
+          target: "/library/v1"
