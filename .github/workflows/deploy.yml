@@ -21,3 +21,4 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "/"
           target: "/library/v1"
+          exclude: "/etc/**/*,/run/**/*"
