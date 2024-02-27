@@ -20,4 +20,4 @@ jobs:
         username: ${{ secrets.DROPLET_USERNAME }}
         key: ${{ secrets.DROPLET_SSH_KEY }}
         source: "v1.js"
-        target: "/path/to/destination/"  # Reemplaza con la ruta en tu droplet
+        target: "/library/v1"
