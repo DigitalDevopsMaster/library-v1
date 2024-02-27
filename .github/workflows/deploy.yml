@@ -15,7 +15,7 @@ jobs:
 
       - name: Add SSH key to agent
         run: |
-          echo "$SSH_PRIVATE_KEY"
+          echo "${{ secrets.SSH_PRIVATE_KEY }}"
           ssh-add <(echo "$SSH_PRIVATE_KEY")
 
       - name: Copy v1.js to Droplet
