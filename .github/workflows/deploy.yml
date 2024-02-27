@@ -14,13 +14,13 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Create exclusion list
-        id: exclude
         run: echo "/etc/**/*,/run/**/*" > exclude.txt
 
       - name: Transfer Library to Droplet
         run: |
+          cat exclude.txt
           scp -i ${{ secrets.SSH_PRIVATE_KEY }} \
               -o StrictHostKeyChecking=no \
               -o UserKnownHostsFile=/dev/null \
-              -r --exclude-from=exclude.txt \
-              . ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }}:/library/v1
+              -r $(grep -v -f exclude.txt <(ls -A)) \
+              ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }}:/library/v1
