@@ -16,8 +16,8 @@ jobs:
       - name: Copy v1.js to Droplet
         run: |
           echo "Copying v1.js to Droplet..."
-          echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDnI5VNA+DUHiYnG8T8pKaEUnbk4FgRiBeK7cGilnaEX/l4OsNI4ijQWHEwv8gz/TiWUPK8uQqYO3CH4Zx1MimIEz4T40dtkH7DaHHgqf+6rNNOgicWWapG4/zYe9Tdwdr2PRMGvEahy6Z61U8gpw3Q6Om+Nai1wTMrIWrQM/eoKy0jpCHqOguwGBX76QbrzPmPfxD0VR8LwtJkywnIhZ9hrFQyaOnGj7uGwoBdLDR2Q2XVK6rBhv32OMfGfRRItiq5KoFRSxYb53gp4DuAqk9SVDBve5G6gQK0LMZHC7Tj79UhRMDEHJw/RsWsNnRgGJhJ+pyAES11GkwgsStfd1fjy72JVr2ec1nSsC5CXvH9LiQT1yCkhe1+RXKQr2MsaAAIcY6721K4RTYrEGlLbqT/sXRBk2fCYi9DWQyRgetCPBptCA18gDMisSVt8iO/tk6SAQTQJ2KMQXBpQCGbiEBR8dM9ScJUDO77Ib17BCl9m6xao2YQqi8XKMwWNGiakTk= isaac@isaac-ThinkPad"
-          scp -i ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDnI5VNA+DUHiYnG8T8pKaEUnbk4FgRiBeK7cGilnaEX/l4OsNI4ijQWHEwv8gz/TiWUPK8uQqYO3CH4Zx1MimIEz4T40dtkH7DaHHgqf+6rNNOgicWWapG4/zYe9Tdwdr2PRMGvEahy6Z61U8gpw3Q6Om+Nai1wTMrIWrQM/eoKy0jpCHqOguwGBX76QbrzPmPfxD0VR8LwtJkywnIhZ9hrFQyaOnGj7uGwoBdLDR2Q2XVK6rBhv32OMfGfRRItiq5KoFRSxYb53gp4DuAqk9SVDBve5G6gQK0LMZHC7Tj79UhRMDEHJw/RsWsNnRgGJhJ+pyAES11GkwgsStfd1fjy72JVr2ec1nSsC5CXvH9LiQT1yCkhe1+RXKQr2MsaAAIcY6721K4RTYrEGlLbqT/sXRBk2fCYi9DWQyRgetCPBptCA18gDMisSVt8iO/tk6SAQTQJ2KMQXBpQCGbiEBR8dM9ScJUDO77Ib17BCl9m6xao2YQqi8XKMwWNGiakTk= isaac@isaac-ThinkPad v1.js root@64.23.152.223:/library/v1
+          echo "${{ secrets.SSH_PRIVATE_KEY }}"
+          ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }}
           echo "Copy complete."
 
 # Puedes agregar más pasos según sea necesario, como comandos de notificación, verificación, etc.
