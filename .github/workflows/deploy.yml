@@ -15,7 +15,7 @@ jobs:
 
       - name: Copy Library to Remote
         run: |
-          ./copy_library.sh
+          ./deploy.sh
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
