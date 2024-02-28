@@ -14,5 +14,5 @@ jobs:
         echo "DROPLET_USERNAME:${{ secrets.DROPLET_USERNAME }}"
         echo "SSH_PRIVATE_KEY:${{ secrets.SSH_PRIVATE_KEY }}"
         echo " ssh -i ${{ secrets.DROPLET_USERNAME }} ${{ secrets.DROPLET_USERNAME }}:${{ secrets.DROPLET_IP }}"
-        echo " cd /library "
-        echo " dir "
+        cd /library
+        dir
