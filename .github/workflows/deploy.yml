@@ -16,7 +16,7 @@ jobs:
           key: ${{secrets.SSH_PRIVATE_KEY}}
           script: |
 
-            cd www
+            cd var/www
             rm -rf library-v1
             git clone git@github.com:DigitalDevopsMaster/library-v1.git
             echo 'Deployment to digital ocean finished'
