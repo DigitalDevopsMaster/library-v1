@@ -21,7 +21,7 @@ jobs:
             rm -rf library-v1
             git clone git@github.com:DigitalDevopsMaster/library-v1.git
             cd library-v1
-            cp index.html ../www/html/index.html
+            cp index.html /var/www/html/index.html
             echo 'Deployment to digital ocean finished'
 
 
