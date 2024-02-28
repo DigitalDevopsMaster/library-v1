@@ -17,8 +17,8 @@ jobs:
           script: |
 
             pwd
-            cd /
-            cd home
+            cd www
+            cd library
             pwd
 
             rm -rf /home/webmaster/www/library/v1
