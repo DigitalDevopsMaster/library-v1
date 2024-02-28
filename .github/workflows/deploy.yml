@@ -26,8 +26,6 @@ jobs:
           host: ${{ vars.DROPLET_IP }}
           username: ${{ vars.DROPLET_USERNAME }}
           key: ${{ vars.SSH_PRIVATE_KEY }}
-          script: |
-            echo "$SSH_PRIVATE_KEY"
 
 
 
