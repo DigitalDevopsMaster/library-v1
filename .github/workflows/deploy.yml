@@ -15,8 +15,6 @@ jobs:
           username: ${{secrets.DROPLET_USERNAME}}
           key: ${{secrets.SSH_PRIVATE_KEY}}
           script: |
-            export NVM_DIR=~/.nvm
-            source ~/.nvm/nvm.sh
             rm -rf /library/v1
             mkdir /library/v1
             cd /library/v1
