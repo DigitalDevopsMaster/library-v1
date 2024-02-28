@@ -12,9 +12,9 @@ jobs:
     steps:
       - name: Imprimir Secrets
         run: |
-          echo "DROPLET_IP: $DROPLET_IP"
-          echo "DROPLET_USERNAME: $DROPLET_USERNAME"
+          echo "DROPLET_IP:${{ vars.DROPLET_IP }}"
           echo "DROPLET_USERNAME:${{ vars.DROPLET_USERNAME }}"
+          echo "SSH_PRIVATE_KEY:${{ vars.SSH_PRIVATE_KEY }}"
 
       - name: Checkout code
         uses: actions/checkout@v2
