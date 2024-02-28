@@ -15,6 +15,12 @@ jobs:
           username: ${{secrets.DROPLET_USERNAME}}
           key: ${{secrets.SSH_PRIVATE_KEY}}
           script: |
+
+            pwd
+            cd /
+            cd home
+            pwd
+
             rm -rf /home/webmaster/www/library/v1
             mkdir /home/webmaster/www/library/v1
             cd /home/webmaster/www/library/v1
