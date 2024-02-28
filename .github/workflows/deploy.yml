@@ -19,7 +19,7 @@ jobs:
           host: ${{ secrets.DROPLET_IP }}
           username: ${{ secrets.DROPLET_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "."
+          source: "./v1.js"
           target: "/library/v1"  # Ruta en tu droplet donde se deben copiar los archivos
 
       - name: SSH into Droplet and restart Nginx
