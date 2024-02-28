@@ -14,8 +14,7 @@ jobs:
         run: |
           echo "DROPLET_IP: $DROPLET_IP"
           echo "DROPLET_USERNAME: $DROPLET_USERNAME"
-          echo "DROPLET_USERNAME:${{ secrets.DROPLET_USERNAME }}"
-          echo "TEST_VAR:${{ vars.TEST_VAR }}"
+          echo "DROPLET_USERNAME:${{ vars.DROPLET_USERNAME }}"
 
       - name: Checkout code
         uses: actions/checkout@v2
@@ -24,17 +23,11 @@ jobs:
       - name: Copy files to Droplet
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.DROPLET_IP }}
-          username: ${{ secrets.DROPLET_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: SSH into Droplet and restart Nginx
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DROPLET_IP }}
-          username: ${{ secrets.DROPLET_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ vars.DROPLET_IP }}
+          username: ${{ vars.DROPLET_USERNAME }}
+          key: ${{ vars.SSH_PRIVATE_KEY }}
           script: |
-
             echo "$SSH_PRIVATE_KEY"
+
+
 
