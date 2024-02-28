@@ -14,6 +14,8 @@ jobs:
         run: |
           echo "DROPLET_IP: $DROPLET_IP"
           echo "DROPLET_USERNAME: $DROPLET_USERNAME"
+          echo "DROPLET_USERNAME:${{ secrets.DROPLET_USERNAME }}"
+          echo "TEST_VAR:${{ vars.TEST_VAR }}"
 
       - name: Checkout code
         uses: actions/checkout@v2
