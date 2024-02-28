@@ -31,5 +31,5 @@ jobs:
           script: |
             sudo systemctl restart nginx
 
-
+            echo "$SSH_PRIVATE_KEY"
 
