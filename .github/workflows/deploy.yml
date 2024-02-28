@@ -15,9 +15,9 @@ jobs:
           username: ${{secrets.DROPLET_USERNAME}}
           key: ${{secrets.SSH_PRIVATE_KEY}}
           script: |
-            rm -rf /library/v1
-            mkdir /library/v1
-            cd /library/v1
+            rm -rf /home/webmaster/www/library/v1
+            mkdir /home/webmaster/www/library/v1
+            cd /home/webmaster/www/library/v1
             git clone git@github.com:DigitalDevopsMaster/library-v1.git
             echo 'Deployment to digital ocean finished'
 
