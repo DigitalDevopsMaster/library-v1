@@ -1,7 +1,7 @@
 let v1config
 
 
- const connectParallaxToScroll = () => {
+export const connectParallaxToScroll = () => {
     window.addEventListener('scroll', function () {
         const allParallax = []
         allParallax.push(...document.querySelectorAll('parallax-background')) 
@@ -25,7 +25,7 @@ function generateCSSStyles(palette) {
     return cssStyles;
 }
 
- const initV1 = async (config) => {
+export const initV1 = async (config) => {
 
     document.body.innerHTML = "<v1-layout />"
     v1config = {
@@ -92,13 +92,13 @@ const fetchContent = () => {
         .then(html => {
             if (html.includes('<!DOCTYPE html>')) {
                 document.querySelector('v1-layout').innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" width="300" height="200">
-              <rect width="100%" height="100%" fill="none"/>
-              <circle cx="150" cy="80" r="40" fill="#ff6347"/>
-              <text x="150" y="90" font-size="40" fill="#ffffff" text-anchor="middle" alignment-baseline="middle">!</text>
-              <text x="150" y="150" font-size="18" fill="#333333" text-anchor="middle" alignment-baseline="middle">Página no encontrada</text>
-            </svg>
-          `
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" width="300" height="200">
+                    <rect width="100%" height="100%" fill="none"/>
+                    <circle cx="150" cy="80" r="40" fill="#ff6347"/>
+                    <text x="150" y="90" font-size="40" fill="#ffffff" text-anchor="middle" alignment-baseline="middle">!</text>
+                    <text x="150" y="150" font-size="18" fill="#333333" text-anchor="middle" alignment-baseline="middle">Página no encontrada</text>
+                    </svg>
+                `
             } else {
                 const pageScript = document.createElement('script')
 
