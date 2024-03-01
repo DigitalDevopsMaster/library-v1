@@ -1,7 +1,7 @@
 let v1config
 
 
-export const connectParallaxToScroll = () => {
+ const connectParallaxToScroll = () => {
     window.addEventListener('scroll', function () {
         const allParallax = []
         allParallax.push(...document.querySelectorAll('parallax-background')) 
@@ -25,7 +25,7 @@ function generateCSSStyles(palette) {
     return cssStyles;
 }
 
-export const initV1 = async (config) => {
+ const initV1 = async (config) => {
 
     document.body.innerHTML = "<v1-layout />"
     v1config = {
