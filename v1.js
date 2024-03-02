@@ -202,7 +202,7 @@ class V1WebLayout extends HTMLElement {
                 top: 0;
                 z-index: 5;
                 display: flex;
-                background: var(--backgroundSecondaryColor);
+                background: var(--primaryColor);
                 justify-content: center;
                 box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             }
@@ -232,7 +232,7 @@ class V1WebLayout extends HTMLElement {
             }
 
             .footer-container {
-                background: var(--backgroundAccentColor);
+                background: var(--backgroundSecondaryColor);
             }
 
             .menu-container {
@@ -253,12 +253,22 @@ class V1WebLayout extends HTMLElement {
             }
 
             footer {
-                color: var(--textColor);
-                padding: 20px;
+                color: var(--textSecondaryColor);
+                padding: 32px;
                 display: flex;
                 justify-content: space-between;
+                flex-direction: column;
+                align-items: center;
             }
-            
+
+            footer a {
+                color: white;
+            }
+            .contact-info {
+                gap: 8px;
+                display: flex;
+                flex-wrap: wrap;
+            }
             .contact-info p {
                 margin: 0;
             }
@@ -408,12 +418,9 @@ class V1WebLayout extends HTMLElement {
         contentNode.querySelector('.title-bar-container').innerHTML = `${headerContent}${contentNode.querySelector('.title-bar-container').innerHTML}`
         contentNode.querySelector('.footer-container').innerHTML = `
         
+
         <footer>
-            <div class="contact-info">
-                <p>Dirección: Calle Principal, Ciudad</p>
-                <p>Teléfono: (123) 456-7890</p>
-                <p>Email: info@rainbowimpresiones.com</p>
-            </div>
+            <p>&copy; 2024 Rainbow Design | <a href="mailto:consorcio.rainbow@gmail.com">consorcio.rainbow@gmail.com</a> | 9991 43 70 13</p>
             <div class="social-links">
                 <!-- Agrega aquí enlaces a tus redes sociales -->
             </div>
@@ -547,7 +554,6 @@ class V1SimpleMenu extends HTMLElement {
             ${this.getAttribute('direction') !== 'row'
                 ? `
                     li {
-                        border-bottom: 1px solid var(--primaryColor);
                     }
                     li.active {
                         background: rgba(0,0,0,.05);
@@ -555,7 +561,7 @@ class V1SimpleMenu extends HTMLElement {
                 `
                 : `
                     li.active {
-                        border-bottom: 3px solid var(--primaryColor);
+                        border-bottom: 3px solid var(--accentColor);
                     }
                 `};
             
@@ -753,7 +759,7 @@ class ParallaxContent extends HTMLElement {
             && (offsetTop + offsetHeight > scrollPosition)
        
         if (isOnScreen ) {
-            this.translatePosition = (scrollPosition - offsetTop) + offsetHeight
+            this.translatePosition = ((scrollPosition - offsetTop)/2 )
             parallax.style.visibility = "visible"
             parallax.style.transform = `translateY(-${this.translatePosition * parallaxFactor}px)`.replace('--', '');
         } else {
@@ -791,13 +797,15 @@ customElements.define('cover-section', class extends HTMLElement {
             display: flex;
             flex-direction: column;
             justify-content: center;
+            padding-top: 30vh;
           }
 
           h1 {
             font-size: 5em;
             margin: 0;
             z-index: 1;
-            color: var(--titleColor);
+            max-width: 800px;
+            color: var(--secondaryColor);
             text-shadow: var(--primaryColor) 1px 1px 0;
           }
 
@@ -806,7 +814,7 @@ customElements.define('cover-section', class extends HTMLElement {
             margin-top: 10px;
             z-index: 1;
             text-shadow: var(--primaryColor) 1px 1px 0;
-            color: var(--subtitleColor);
+            color: var(--accentColor);
             margin-bottom: 30px;
             overflow: hidden;
           }
@@ -828,15 +836,15 @@ customElements.define('cover-section', class extends HTMLElement {
           }
 
           .primary {
-            background-color: var(--primaryColor);
-            color: var(--textColor);
+            background-color: var(--accentColor1);
+            color: var(--primaryColor);
             border: none;
           }
 
           .secondary {
-            color: var(--backgroundAccentColor);
-            background-color: transparent;
-            border: 1px solid var(--backgroundAccentColor);
+            color: var(--accentColor1);
+            background-color: var(--primaryColor);
+            border: 1px solid var(--accentColor1);
           }
           @media screen and (max-width: ${v1config.breakpoint}px) {
             h1 {
@@ -1172,3 +1180,124 @@ class ParragraphText extends HTMLElement {
 }
 
 customElements.define('accordion-item', AccordionItem);
+
+class StaticGallery extends HTMLElement {
+    constructor() {
+        super();
+
+        // Crear un shadow DOM
+        this.attachShadow({mode: 'open'});
+
+        // Obtener los atributos del elemento
+        const imageUrls = this.getAttribute('image-urls');
+
+        // Convertir la cadena JSON de los atributos en un array
+        this.imageUrlsArray = JSON.parse(imageUrls);
+
+        this.title = this.getAttribute('title')
+        // Renderizar la lista de imágenes
+        this.render();
+    }
+
+    connectedCallback() {
+        // Agregar evento de clic a cada imagen
+        this.shadowRoot.querySelectorAll('img').forEach((img, index) => {
+            img.addEventListener('click', () => this.showImageInModal(index));
+        });
+    }
+
+    // Método para renderizar la lista de imágenes
+    render() {
+        const style = document.createElement('style');
+        const ul = document.createElement('ul');
+
+        style.innerText = `
+            * {
+                margin: 0;
+                padding: 0;
+            }
+            :host {
+                max-width: 1200px;
+                align-self: center;
+                padding: 24px;
+                display: flex;
+                flex-direction: column;
+                gap: 24px;
+            }
+            ul {
+                display: flex;
+                flex-wrap: wrap;
+                list-style: none;
+                gap: 24px;
+                align-content: center;
+            }
+            li {
+                cursor: pointer;
+                border: 8px solid var(--secondaryColor);
+                border-radius: 4px;
+                flex: 1;
+                min-width: 350px;
+                width: calc((100% / 3) - 32px);
+                max-height: 350px;
+            }
+            li img {
+                height: 100%;
+                width: 100%;
+                object-fit: cover;
+            }
+            heading-text {
+                font-size: 32px;
+                padding-top: 24px;
+                align-self: center;
+            }
+        `;
+
+        this.shadowRoot.innerHTML = `
+            <heading-text heading-size="h2">Galerìa</heading-text>
+        `
+
+        this.imageUrlsArray.forEach(url => {
+            const li = document.createElement('li');
+            const img = document.createElement('img');
+            img.src = url;
+            li.appendChild(img);
+            ul.appendChild(li);
+        });
+
+        const title = document.createElement('heading-text');
+
+
+        // Adjuntar la lista al shadow DOM
+        this.shadowRoot.append(style, title, ul);
+    }
+
+    // Método para mostrar la imagen en pantalla completa
+    showImageInModal(index) {
+        const modal = document.createElement('div');
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100%';
+        modal.style.height = '100%';
+        modal.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+        modal.style.display = 'flex';
+        modal.style.alignItems = 'center';
+        modal.style.justifyContent = 'center';
+        modal.style.zIndex = '1000';
+
+        const img = document.createElement('img');
+        img.src = this.imageUrlsArray[index];
+        img.style.maxWidth = '90%';
+        img.style.maxHeight = '90%';
+        img.style.objectFit = 'contain';
+
+        // Cerrar modal al hacer clic fuera de la imagen
+        modal.addEventListener('click', () => modal.remove());
+
+        modal.appendChild(img);
+        document.body.appendChild(modal);
+    }
+}
+
+// Registrar el custom element
+customElements.define('static-gallery', StaticGallery);
