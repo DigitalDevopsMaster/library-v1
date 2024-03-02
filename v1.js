@@ -797,7 +797,6 @@ customElements.define('cover-section', class extends HTMLElement {
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding-top: 30vh;
           }
 
           h1 {
@@ -805,7 +804,7 @@ customElements.define('cover-section', class extends HTMLElement {
             margin: 0;
             z-index: 1;
             max-width: 800px;
-            color: var(--secondaryColor);
+            color: white;
             text-shadow: var(--primaryColor) 1px 1px 0;
           }
 
