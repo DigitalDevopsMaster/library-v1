@@ -1,17 +1,15 @@
 let v1config
 
 
-export const connectParallaxToScroll = () => {
+export const initScrollIntegration = () => {
     window.addEventListener('scroll', function () {
-        const allParallax = []
-        allParallax.push(...document.querySelectorAll('parallax-background')) 
-        allParallax.push(...document.querySelectorAll('parallax-content')) 
-        allParallax.forEach((parallax) => {
-            parallax.setAttribute('scroll-position', window.scrollY)
-        })
+        const allScrollAwareComponents = []
+        allScrollAwareComponents.push(...document.querySelectorAll('parallax-background')) 
+        allScrollAwareComponents.push(...document.querySelectorAll('parallax-content')) 
+        allScrollAwareComponents.push(...document.querySelectorAll('lazy-load')) 
+        allScrollAwareComponents.forEach((parallax) => parallax.setAttribute('scroll-position', window.scrollY))
     });
 }
-
 
 function generateCSSStyles(palette) {
     let cssStyles = '';
@@ -842,8 +840,21 @@ customElements.define('cover-section', class extends HTMLElement {
 
           .secondary {
             color: var(--accentColor1);
-            background-color: var(--primaryColor);
             border: 1px solid var(--accentColor1);
+            background-color: var(--primaryColor);
+          }
+          .cto p {
+              margin: 0;
+              padding: 0;
+          }
+
+          .secondary p {
+            background-image: linear-gradient(90deg, rgba(255,229,0,1) 0%, rgba(0,255,194,1) 25%, rgba(96,0,255,1) 50%, rgba(246,0,255,1) 75%, rgba(255,0,0,1) 100%);
+            color: transparent;
+            background-clip: text;
+            -webkit-background-clip: text; /* Necesario para algunos navegadores WebKit */
+            text-fill-color: transparent;
+            background-color: var(--primaryColor);
           }
           @media screen and (max-width: ${v1config.breakpoint}px) {
             h1 {
@@ -868,9 +879,8 @@ customElements.define('cover-section', class extends HTMLElement {
           <h1 class="title"></h1>
           <h2 class="subtitle"></h2>
           <div class="row">
-              <button class="cto primary"></button>
-              <button class="cto secondary"></button>
-
+              <button class="cto primary"><p></p></button>
+              <button class="cto secondary"><p></p></button>
           </div>
         </div>
       `;
@@ -891,8 +901,8 @@ customElements.define('cover-section', class extends HTMLElement {
 
         this.titleElement.textContent = this.getAttribute('title');
         this.subtitleElement.textContent = this.getAttribute('subtitle');
-        this.primaryButton.textContent = this.getAttribute('primary-button-text');
-        this.secondaryButton.textContent = this.getAttribute('secondary-button-text');
+        this.primaryButton.querySelector('p').textContent = this.getAttribute('primary-button-text');
+        this.secondaryButton.querySelector('p').textContent = this.getAttribute('secondary-button-text');
     }
 });
 
@@ -1300,3 +1310,65 @@ class StaticGallery extends HTMLElement {
 
 // Registrar el custom element
 customElements.define('static-gallery', StaticGallery);
+
+class LazyLoad extends HTMLElement {
+    static get observedAttributes() {
+        return ['scroll-position'];
+    }
+
+    constructor() {
+      super();
+      this.attachShadow({mode: 'open'});
+      this.isVisible = false;
+      this.hasLoaded = false;
+      this.delay = this.getAttribute('delay') || 500
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+        if (this.hasLoaded) return
+        if (name === 'scroll-position') {
+            const scrollPosition = Number(newValue)
+            const viewPortHeight = document.body.offsetHeight
+            const position = this.offsetTop
+            const lazyComponentHeight =  Number(this.offsetHeight)
+            const isVisible = 
+                (( viewPortHeight - lazyComponentHeight + scrollPosition ) > position)
+                    && (( viewPortHeight + lazyComponentHeight + scrollPosition ) < (position + viewPortHeight))
+            if ( isVisible) {
+                this.hasLoaded = true;
+                console.table({isVisible});
+                this.render();
+            }
+            
+        }
+    }
+
+    render() {
+      this.shadowRoot.innerHTML = `
+        <style>
+            @keyframes slideIn {
+                from {
+                    transform: translateY(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+            
+            :host {
+                animation: slideIn 0.5s ${this.delay/1000}s ease-in-out forwards;
+                opacity: 0;
+                color: white;
+            }
+            
+        </style>
+
+        <slot />
+      `;
+      
+    }
+  }
+
+  customElements.define('lazy-load', LazyLoad);
