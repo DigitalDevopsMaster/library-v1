@@ -1248,11 +1248,23 @@ class StaticGallery extends HTMLElement {
                 min-width: 350px;
                 width: calc((100% / 3) - 32px);
                 max-height: 350px;
+                justify-content: center;
+                align-items: center;
+                overflow: hidden;
+                display: flex;
+
             }
             li img {
                 height: 100%;
                 width: 100%;
                 object-fit: cover;
+                transition: ease-in-all .3s all;
+            }
+
+            li:hover img {
+                height: 110%;
+                width: 110%;
+                transition: ease-in-all .3s all;
             }
             heading-text {
                 font-size: 32px;
