@@ -1266,9 +1266,12 @@ class StaticGallery extends HTMLElement {
                 opacity: 0.5;
 
             }
-            li:hover img::after {
-                content: "TITLE";
-                border: 1px solid;
+            li:hover img::before {
+                content: "Mi Texto Aquí img";
+            }
+
+            li:hover::before {
+                content: "Mi Texto Aquí li";
             }
             heading-text {
                 font-size: 32px;
