@@ -1266,7 +1266,7 @@ class StaticGallery extends HTMLElement {
                 opacity: 0.5;
 
             }
-            li:hover img:after {
+            li:hover img::after {
                 content: "TITLE";
                 border: 1px solid;
             }
