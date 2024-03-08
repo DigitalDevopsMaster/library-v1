@@ -1487,6 +1487,7 @@ class LazyLoad extends HTMLElement {
               padding: 32px;
               border-radius: 8px;
               backdrop-filter: blur(2px);
+              display: flex;
           }
           .testimonial-container {
               width: 100%;
