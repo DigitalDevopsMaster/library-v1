@@ -1262,9 +1262,7 @@ class StaticGallery extends HTMLElement {
             }
 
             li:hover img {
-                height: 110%;
-                width: 110%;
-                transition: ease-in-all .3s all;
+                transform: scale(1.1);
             }
             heading-text {
                 font-size: 32px;
