@@ -1266,12 +1266,11 @@ class StaticGallery extends HTMLElement {
                 opacity: 0.5;
 
             }
-            li:hover img::before {
-                content: "Mi Texto Aquí img";
-            }
+          
 
             li:hover::before {
-                content: "Mi Texto Aquí li";
+                content: "Click para ampliar";
+                position: absolute;
             }
             heading-text {
                 font-size: 32px;
