@@ -1263,7 +1263,7 @@ class StaticGallery extends HTMLElement {
 
             li:hover img {
                 transform: scale(1.1);
-                opacity: 5;
+                opacity: 0.5;
 
             }
             li:hover img:after {
