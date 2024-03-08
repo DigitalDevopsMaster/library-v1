@@ -1252,17 +1252,23 @@ class StaticGallery extends HTMLElement {
                 align-items: center;
                 overflow: hidden;
                 display: flex;
-
+                background: var(--accentColor1);
             }
             li img {
                 height: 100%;
                 width: 100%;
                 object-fit: cover;
-                transition: ease-in-all .3s all;
+                transition: ease-in-out .3s all;
             }
 
             li:hover img {
                 transform: scale(1.1);
+                opacity: 5;
+
+            }
+            li:hover img:after {
+                content: "TITLE";
+                border: 1px solid;
             }
             heading-text {
                 font-size: 32px;
