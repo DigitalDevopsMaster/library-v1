@@ -6,6 +6,7 @@ export const initScrollIntegration = () => {
         const allScrollAwareComponents = []
         allScrollAwareComponents.push(...document.querySelectorAll('parallax-background')) 
         allScrollAwareComponents.push(...document.querySelectorAll('parallax-content')) 
+        allScrollAwareComponents.push(document.querySelector('v1-layout').getShadowRoot().querySelector('v1-web-layout')) 
         allScrollAwareComponents.push(...document.querySelectorAll('lazy-load')) 
         allScrollAwareComponents.forEach((parallax) => parallax.setAttribute('scroll-position', window.scrollY))
     });
@@ -146,6 +147,9 @@ class V1Layout extends HTMLElement {
     attributeChangedCallback(ect) {
         this.render();
     }
+    getShadowRoot() {
+        return this.shadowRoot;
+    }
     render() {
         this.shadow.innerHTML = `
             <style>
@@ -172,12 +176,32 @@ class V1Layout extends HTMLElement {
 customElements.define('v1-layout', V1Layout);
 
 class V1WebLayout extends HTMLElement {
+    static observedAttributes = ["scroll-position"];
+    
     constructor() {
         super();
         this.shadow = this.attachShadow({ mode: "open" });
     }
+
     connectedCallback() {
         this.render()
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+        const headerContainer = this.shadowRoot.querySelector('.header-container')
+        console.log(headerContainer.classList);
+        const isMaximized = headerContainer.classList.contains('maximized')
+        if (Number(newValue)) {
+            if(isMaximized) {
+                headerContainer.classList.remove('maximized')
+            }
+        } else {
+            if(!isMaximized) {
+                headerContainer.classList.add('maximized')
+            }
+        }
+        
+
     }
 
     render() {
@@ -200,9 +224,18 @@ class V1WebLayout extends HTMLElement {
                 top: 0;
                 z-index: 5;
                 display: flex;
-                background: var(--primaryColor);
                 justify-content: center;
+                height: 45px;
+                background: var(--primaryColor);
+                transition: ease-in-out .3s all;
                 box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+            @media screen and (min-width: ${v1config.breakpoint}px) {
+                .header-container.maximized {
+                    height: 65px;
+                    background: transparent;
+                    box-shadow: none;
+                }
             }
             .header-delimiter {
                 width: 100%;
@@ -226,7 +259,6 @@ class V1WebLayout extends HTMLElement {
             }
             .content-container {
                 flex: 1;
-                margin-top: 40px;
             }
 
             .footer-container {
@@ -236,6 +268,8 @@ class V1WebLayout extends HTMLElement {
             .menu-container {
                 opacity: 0;
                 visibility: hidden;
+                align-items: flex-end;
+                display: flex;
 
             }
             .menu-overlay {
@@ -260,7 +294,7 @@ class V1WebLayout extends HTMLElement {
             }
 
             footer a {
-                color: white;
+                color: var(--accentSecondaryColor);
             }
             .contact-info {
                 gap: 8px;
@@ -391,7 +425,7 @@ class V1WebLayout extends HTMLElement {
         styles.innerText = styles.innerText.replace('<br>', '')
         template.innerHTML = `
             <div id="resizer">
-                <div class="header-container">
+                <div class="header-container maximized">
                     <div class="header-delimiter">
                         <div class="title-bar-container"></div>
                         <input id="menu-trigger" type="checkbox">
@@ -415,20 +449,14 @@ class V1WebLayout extends HTMLElement {
 
         contentNode.querySelector('.title-bar-container').innerHTML = `${headerContent}${contentNode.querySelector('.title-bar-container').innerHTML}`
         contentNode.querySelector('.footer-container').innerHTML = `
-        
-
-        <footer>
-            <p>&copy; 2024 Rainbow Design | <a href="mailto:consorcio.rainbow@gmail.com">consorcio.rainbow@gmail.com</a> | 9991 43 70 13</p>
-            <div class="social-links">
-                <!-- Agrega aquí enlaces a tus redes sociales -->
-            </div>
-        </footer>
+            <footer>
+                <p>&copy; 2024 ${v1config?.contactInfo?.companyName} | <a href="${v1config?.contactInfo?.email}">${v1config?.contactInfo?.email}</a> | ${v1config?.contactInfo?.phone}</p>
+                <div class="social-links">
+                    <!-- Agrega aquí enlaces a tus redes sociales -->
+                </div>
+            </footer>
         `
-
-
-
         const menu = contentNode.querySelector('v1-simple-menu')
-
         const menuButton = contentNode.querySelector('#menu-button')
         const menuOverlay = contentNode.querySelector('#menu-overlay')
         const inputTrigger = contentNode.querySelector('#menu-trigger')
@@ -1414,7 +1442,6 @@ class LazyLoad extends HTMLElement {
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             background-color: #f9f9f9;
             text-align: center;
-            background-image: url("data:image/svg+xml,<svg id='patternId' width='100%' height='100%' xmlns='http://www.w3.org/2000/svg'><defs><pattern id='a' patternUnits='userSpaceOnUse' width='70' height='8' patternTransform='scale(7) rotate(125)'><rect x='0' y='0' width='100%' height='100%' fill='hsla(0, 61%, 0%, 0.91)'/><path d='M-.02 22c8.373 0 11.938-4.695 16.32-9.662C20.785 7.258 25.728 2 35 2c9.272 0 14.215 5.258 18.7 10.338C58.082 17.305 61.647 22 70.02 22M-.02 14.002C8.353 14 11.918 9.306 16.3 4.339 20.785-.742 25.728-6 35-6 44.272-6 49.215-.742 53.7 4.339c4.382 4.967 7.947 9.661 16.32 9.664M70 6.004c-8.373-.001-11.918-4.698-16.3-9.665C49.215-8.742 44.272-14 35-14c-9.272 0-14.215 5.258-18.7 10.339C11.918 1.306 8.353 6-.02 6.002'  stroke-width='2.5' stroke='hsla(259, 0%, 0%, 1)' fill='none'/></pattern></defs><rect width='800%' height='800%' transform='translate(0,0)' fill='url(%23a)'/></svg>")
           }
 
           p {
