@@ -40,18 +40,29 @@ export const initV1 = async (config) => {
         })
         .then(data => {
             const parsedData = JSON.parse(data);
-            config.menuOptions = parsedData.htmlFiles.filter((opt) => opt !== 'index.html').map((opt) => {
+            config.menuOptions = parsedData.htmlFiles.filter((opt) => opt !== 'index.html' && opt !== 'home.html').map((opt) => {
                 const label = opt.replace('.html', '')
                 const menuOption = {
                     label,
                     onClick: () => {
-                        window.history.pushState({}, '', `/${label !== 'home' ? label : ''}`);
+                        window.history.pushState({}, '', `/${label}`);
                         const eventoPopstate = new Event('popstate');
                         window.dispatchEvent(eventoPopstate);
                     },
                 }
                 return menuOption
             })
+
+            config.menuOptions.unshift({
+                label: "HOME",
+                onClick: () => {
+                    window.history.pushState({}, '', `/`);
+                    const eventoPopstate = new Event('popstate');
+                    window.dispatchEvent(eventoPopstate);
+                }
+            })
+               
+             
         })
         .catch(error => {
             console.error('Error:', error);
@@ -81,7 +92,7 @@ export const initV1 = async (config) => {
     document.body.prepend(themeStyles);
 }
 
-const fetchContent = () => {
+const fetchContent = async () => {
     const pathname = window.location.pathname
     const route = `${pathname.replace('/', '') || 'home'}.html`
     fetch(route)
@@ -103,15 +114,31 @@ const fetchContent = () => {
 
                 var range = document.createRange();
                 var fragment = range.createContextualFragment(html);
-                document.querySelector('v1-layout').innerHTML = '';
-                document.querySelector('v1-layout').append(fragment);
+                const v1Layout = document.querySelector('v1-layout')
+                console.log(v1Layout.getShadowRoot().querySelector('v1-web-layout'));
+                    
+                setTimeout(() => {
+                    window.scrollTo({
+                        top: 1,
+                    })
+                    v1Layout.innerHTML = '';
+                }, 0);
+                setTimeout(() => {
+                    v1Layout.append(fragment);
+                    window.scrollTo({
+                        top: 0,
+                    })
+                }, 0);
             }
-        });
+        })
+        ;
 }
 
-window.addEventListener('popstate', function (event) {
-    fetchContent()
+window.addEventListener('popstate', async function (event) {
+    await fetchContent()
 });
+
+
 
 fetchContent()
 
@@ -189,8 +216,12 @@ class V1WebLayout extends HTMLElement {
 
     attributeChangedCallback(name, oldValue, newValue) {
         const headerContainer = this.shadowRoot.querySelector('.header-container')
-        console.log(headerContainer.classList);
         const isMaximized = headerContainer.classList.contains('maximized')
+        const isHome = window.location.pathname === "/"
+        if (!isHome) {
+            headerContainer.classList.remove('maximized')
+            return
+        } 
         if (Number(newValue)) {
             if(isMaximized) {
                 headerContainer.classList.remove('maximized')
@@ -230,13 +261,36 @@ class V1WebLayout extends HTMLElement {
                 transition: ease-in-out .3s all;
                 box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             }
+
+            .header-container .logo {
+                object-fit: contain;
+                margin: 0 4px;
+                margin-left: 16px;
+                margin-bottom: -50px;
+                transition: ease-in-out all .3s;
+                width: unset;
+            }
+
+            
             @media screen and (min-width: ${v1config.breakpoint}px) {
                 .header-container.maximized {
-                    height: 65px;
+                    height: 100px;
                     background: transparent;
                     box-shadow: none;
                 }
+                .header-container.maximized .logo {
+                    padding-top: 32px;
+                }
             }
+
+            @media screen and (max-width: ${v1config.breakpoint}px) {
+                
+                .header-container .logo {
+                    margin-bottom: 0;
+                }
+                
+            }
+           
             .header-delimiter {
                 width: 100%;
                 display: flex;
@@ -268,7 +322,7 @@ class V1WebLayout extends HTMLElement {
             .menu-container {
                 opacity: 0;
                 visibility: hidden;
-                align-items: flex-end;
+                align-items: stretch;
                 display: flex;
 
             }
@@ -425,8 +479,9 @@ class V1WebLayout extends HTMLElement {
         styles.innerText = styles.innerText.replace('<br>', '')
         template.innerHTML = `
             <div id="resizer">
-                <div class="header-container maximized">
+                <div class="header-container ${window.location.pathname !== "/" ? '' :"maximized"}">
                     <div class="header-delimiter">
+                        <img class="logo" src="${v1config.contactInfo.logo}" >
                         <div class="title-bar-container"></div>
                         <input id="menu-trigger" type="checkbox">
                         <div id="menu-overlay" class="menu-overlay"></div>
@@ -464,7 +519,7 @@ class V1WebLayout extends HTMLElement {
 
         v1config.menuOptions.forEach(opt => {
             const button = document.createElement('v1-simple-menu-button')
-            button.innerText = `${opt.label}`
+            button.innerText = `${opt.label}`.toUpperCase()
             button.onclick = () => {
                 opt.onClick()
                 inputTrigger.checked = !inputTrigger.checked
@@ -508,6 +563,9 @@ class V1SimpleMenu extends HTMLElement {
         this.styles = document.createElement('style')
         this.direction = this.getAttribute('direction');
         this.styles.innerText = `
+            :host {
+                width: 100%;
+            }
             ul {
                 list-style: none;
                 padding: 0;
@@ -539,7 +597,7 @@ class V1SimpleMenu extends HTMLElement {
         const ul = this.shadow.querySelector('ul')
         buttons.forEach(button => {
             const li = document.createElement('li')
-            if (window.location.pathname.replace('/', '') === button.innerText.replace('home', '')) {
+            if (window.location.pathname.replace('/', '').toUpperCase() === button.innerText.replace('HOME', '').toUpperCase()) {
                 li.classList.add('active')
             }
             li.append(button)
@@ -548,16 +606,13 @@ class V1SimpleMenu extends HTMLElement {
 
 
         window.addEventListener('popstate', function (event) {
-
             buttons.forEach(button => {
-                if (window.location.pathname.replace('/', '') === button.innerText.replace('home', '')) {
+                if (window.location.pathname.replace('/', '').toUpperCase() === button.innerText.replace('HOME', '').toUpperCase()) {
                     button.parentElement.classList.add('active')
                 } else {
                     button.parentElement.classList.remove('active')
                 }
             });
-
-
         });
 
     }
@@ -625,6 +680,12 @@ class V1SimpleMenuButton extends HTMLElement {
                     border: none;
                     padding: 8px;
                     color: var(--textColor);
+                }
+                @media screen and (max-width: ${v1config.breakpoint}px) {
+                    button {
+                        color: var(--menuButtonText);
+                    }
+                    
                 }
             </style>
             <button>
