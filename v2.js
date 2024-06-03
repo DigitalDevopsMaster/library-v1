@@ -870,6 +870,11 @@ class LayoutFooter extends HTMLElement {
         </p>
         
         <p>${config.contactInfo.address}</p>
+        ${
+          config.contactInfo.openingHours.length
+            ? config.contactInfo.openingHours.map((schedule) => `<p>${schedule}</p>`)
+            : ""
+        }
       </div>
       <div class="footer-right-container">
         <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0,0,256,256">
