@@ -668,7 +668,6 @@ class ImageCarousel extends HTMLElement {
           transition: opacity 0.5s ease; /* Transición de opacidad */
           height: 100%;  
           left: 0;
-          z-index: -1;
         }
         img {
           height: 100%;
@@ -730,7 +729,7 @@ class ImageCarousel extends HTMLElement {
           <h2 class="title"></h2>
           <p class="description"></p>
         </div>
-        <div class="text-container" style="z-index: -1;">
+        <div class="text-container">
           <h2 class="title"></h2>
           <p class="description"></p>
         </div>
