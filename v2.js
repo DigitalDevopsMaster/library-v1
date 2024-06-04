@@ -1,5 +1,38 @@
 let config
 
+export const navigate = (url) => {
+  document.querySelectorAll('layout-header header nav a').forEach((a) => a.className = "")
+  const open = document.querySelector('.open')
+  // button.className =  'active'
+
+  const menuButton = document.querySelector('burguer-menu-button').shadowRoot.querySelector('.open')
+
+  open?.classList.remove('open')
+  menuButton?.classList.remove('open')
+  window.history.pushState({}, '', `${url}`);
+
+  setTimeout(() => {
+    
+    if (url.includes('#')) {
+      const [baseUrl, hash] = url.split('#');
+      const targetElement = document.getElementById(hash);
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      document.querySelector('web-layout-00').scroll({
+        top: 0,
+        left: 0,
+        behavior: 'smooth' // O 'auto' para un scroll instantáneo
+      });
+    }
+  }, 0);
+
+
+  const eventoPopstate = new Event('popstate');
+  window.dispatchEvent(eventoPopstate);
+}
+
 export const loadFrontend = async (cfg) => {
   const scripts = [];
   config = { ...cfg, pages: [] }
@@ -84,6 +117,9 @@ export const loadFrontend = async (cfg) => {
     navLogo.innerHTML = `
       <img src="${config.contactInfo.logo}" >
     `
+
+
+
     pages.forEach(({ config }) => {
       const button = document.createElement('a')
       button.href = `${config.route}`
@@ -91,17 +127,7 @@ export const loadFrontend = async (cfg) => {
       button.innerText = config.name
       button.onclick = (e) => {
         e.preventDefault()
-        document.querySelectorAll('layout-header header nav a').forEach((a) => a.className = "")
-        const open = document.querySelector('.open')
-        button.className =  'active'
-
-        const menuButton = document.querySelector('burguer-menu-button').shadowRoot.querySelector('.open')
-
-        open?.classList.remove('open')
-        menuButton?.classList.remove('open')
-        window.history.pushState({}, '', `${config.route}`);
-        const eventoPopstate = new Event('popstate');
-        window.dispatchEvent(eventoPopstate);
+        navigate(config.route)
       }
       nav.append(button)
     });
@@ -870,11 +896,7 @@ class LayoutFooter extends HTMLElement {
         </p>
         
         <p>${config.contactInfo.address}</p>
-        ${
-          config.contactInfo.openingHours.length
-            ? config.contactInfo.openingHours.map((schedule) => `<p>${schedule}</p>`)
-            : ""
-        }
+
       </div>
       <div class="footer-right-container">
         <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0,0,256,256">
@@ -895,6 +917,22 @@ class LayoutFooter extends HTMLElement {
       </div>
 
     `;
+
+    const footerLeftContainer = this.shadowRoot.querySelector(".footer-left-container")
+    
+    
+    if (config.contactInfo.openingHours.length) {
+      const scheduleTag = document.createElement('p')
+      scheduleTag.innerHTML = "Horario:"
+      footerLeftContainer.append(scheduleTag)
+      config.contactInfo.openingHours.forEach((schedule) => {
+          const onpeningHours =  document.createElement('p')
+          onpeningHours.innerHTML = schedule
+          footerLeftContainer.append(onpeningHours)
+        }
+      )
+
+    }
   }
 }
 
