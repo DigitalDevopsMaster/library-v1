@@ -936,6 +936,7 @@ class LayoutFooter extends HTMLElement {
   }
 }
 
+
 customElements.define('layout-footer', LayoutFooter);
 customElements.define('image-carousel', ImageCarousel);
 customElements.define('parallax-background', ParallaxBackground);
