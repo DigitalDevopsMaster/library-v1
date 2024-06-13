@@ -33,6 +33,10 @@ export const navigate = (url) => {
   window.dispatchEvent(eventoPopstate);
 }
 
+export const scrollTo = (pos) => {
+    document.querySelector('web-layout-00').scrollTo(pos);
+}
+
 export const loadFrontend = async (cfg) => {
   const scripts = [];
   config = { ...cfg, pages: [] }
