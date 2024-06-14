@@ -678,11 +678,11 @@ class ImageCarousel extends HTMLElement {
         img {
           height: 100%;
           width: 100%;
-          object-fit: cover;
           position: absolute;
           top: 0;
           left: 0;
         }
+
         .text-container {
           position:absolute;
           box-sizing: border-box;
@@ -781,6 +781,7 @@ class ImageCarousel extends HTMLElement {
       const imageContainer = imageContainers[i];
       const textContainer = textContainers[i];
       const imageElement = imageContainer.querySelector('.image');
+
       
       const titleElement = textContainer.querySelector('.title');
       const descriptionElement = textContainer.querySelector('.description');
@@ -802,6 +803,13 @@ class ImageCarousel extends HTMLElement {
         
         descriptionElement.style.transition = '.5s all ease-in-out';
         descriptionElement.style.transform = 'skew(15deg)';
+
+        if (incomingImage.forceContain) {
+          imageElement.style.objectFit = "contain"
+          imageElement.style.background = incomingImage.fillColor
+        } else {
+          imageElement.style.objectFit = "cover"
+        }
         
         setTimeout(() => {
           imageContainer.style.transition = 'none';
@@ -816,9 +824,9 @@ class ImageCarousel extends HTMLElement {
           
           descriptionElement.style.transition = 'none';
           descriptionElement.style.transform = 'skew(0)';
-
         }, 500);
       } else {
+
         textContainer.style.transition = '.5s all ease-in-out';
         textContainer.style.transform = 'translateX(-100%) skew(0)';
         textContainer.style.opacity = '0';
@@ -838,10 +846,15 @@ class ImageCarousel extends HTMLElement {
           
           descriptionElement.style.transition = 'none';
           descriptionElement.style.transform = 'skew(15deg)';
-
           imageElement.src = incomingImage.url;
           titleElement.textContent = incomingImage.title;
           descriptionElement.textContent = incomingImage.description;
+          if (incomingImage.forceContain) {
+            imageElement.style.objectFit = "contain"
+            imageElement.style.background = incomingImage.fillColor
+          } else {
+            imageElement.style.objectFit = "cover"
+          }
         }, 500);
       }
 
