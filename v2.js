@@ -133,7 +133,9 @@ export const loadFrontend = async (cfg) => {
         e.preventDefault()
         navigate(config.route)
       }
-      nav.append(button)
+      if(!config.disableMenuButton) {
+        nav.append(button)
+      }
     });
     nav.append(navLogo)
 
