@@ -751,7 +751,7 @@ class ImageCarousel extends HTMLElement {
             padding-bottom: 30%;
             bottom: 0;
             left: 0;
-            padding-right: unset;
+            padding-right: 32px;
             width: 100%;
           }
           .text-container * {
