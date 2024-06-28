@@ -1064,7 +1064,7 @@ class WhatsAppButton extends HTMLElement {
   updateLink(tel) {
       const link = this.shadowRoot.querySelector('a');
       if (link && tel) {
-          link.href = `https://wa.me/${tel}`;
+          link.href = `https://wa.me/+52${tel}`;
       }
   }
 }
