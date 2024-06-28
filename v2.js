@@ -719,13 +719,11 @@ class ImageCarousel extends HTMLElement {
           line-height: 20px;
           color: ${config.palette.textColor};
           
-          transform: skew(-15deg);
           max-height: 100%;
           height: 100%;
           justify-content: center;
         }
         .text-container * {
-          transform: skew(15deg);
         }
         .text-container {
           width: 100%;
@@ -743,9 +741,20 @@ class ImageCarousel extends HTMLElement {
           align-items: center;
           z-index: 1;
         }
-        @media screen and (max-width: 600px) {
+        @media screen and (max-width: ${config.layout.breakpoint}px) {
           img {
             object-fit: contain!important;
+          }
+          .text-container {
+            height: unset;
+            top: unset;
+            padding-bottom: 30%;
+            bottom: 0;
+            left: 0;
+            padding-right: unset;
+            width: 100%;
+          }
+          .text-container * {
           }
         }
       </style>
@@ -820,14 +829,14 @@ class ImageCarousel extends HTMLElement {
         imageContainer.style.opacity = '1';
 
         textContainer.style.transition = '.5s all ease-in-out';
-        textContainer.style.transform = 'translateX(0) skew(-15deg)';
+        textContainer.style.transform = 'translateX(0)';
         textContainer.style.opacity = '1';
         
         titleElement.style.transition = '.5s all ease-in-out';
-        titleElement.style.transform = 'skew(15deg)';
+        titleElement.style.transform = '';
         
         descriptionElement.style.transition = '.5s all ease-in-out';
-        descriptionElement.style.transform = 'skew(15deg)';
+        descriptionElement.style.transform = '';
         
         if (incomingImage.fillColor) {
           imageElement.style.background = incomingImage.fillColor
@@ -847,35 +856,35 @@ class ImageCarousel extends HTMLElement {
           
           textContainer.style.transition = 'none';
           textContainer.style.opacity = '0';
-          textContainer.style.transform = 'translateX(100%) skew(0deg)';
+          textContainer.style.transform = 'translateX(100%)';
           
           titleElement.style.transition = 'none';
-          titleElement.style.transform = 'skew(0)';
+          titleElement.style.transform = '';
           
           descriptionElement.style.transition = 'none';
-          descriptionElement.style.transform = 'skew(0)';
+          descriptionElement.style.transform = '';
         }, 500);
       } else {
 
         textContainer.style.transition = '.5s all ease-in-out';
-        textContainer.style.transform = 'translateX(-100%) skew(0)';
+        textContainer.style.transform = 'translateX(-100%)';
         textContainer.style.opacity = '0';
         
         titleElement.style.transition = '.5s all ease-in-out';
-        titleElement.style.transform = 'skew(0)';
+        titleElement.style.transform = '';
         
         descriptionElement.style.transition = '.5s all ease-in-out';
-        descriptionElement.style.transform = 'skew(0)';
+        descriptionElement.style.transform = '';
         setTimeout(() => {
           textContainer.style.transition = 'none';
           textContainer.style.opacity = '1';
-          textContainer.style.transform = 'translateX(0) skew(-15deg)';
+          textContainer.style.transform = 'translateX(0)';
           
           titleElement.style.transition = 'none';
-          titleElement.style.transform = 'skew(15deg)';
+          titleElement.style.transform = '';
           
           descriptionElement.style.transition = 'none';
-          descriptionElement.style.transform = 'skew(15deg)';
+          descriptionElement.style.transform = '';
           imageElement.src = incomingImage.url;
           titleElement.textContent = incomingImage.title;
           descriptionElement.textContent = incomingImage.description;
