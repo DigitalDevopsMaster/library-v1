@@ -42,7 +42,7 @@ export const loadFrontend = async (cfg) => {
   config = { ...cfg, pages: [] }
   var isMobile = window.innerWidth > config.layout.breakpoint ? 'desktop' : 'mobile'
   document.body.innerHTML = `<${config.layout.type} class="${isMobile}"/>`
-
+  
   function compareByIndex(a, b) {
     return a.config.index - b.config.index;
   }
@@ -119,8 +119,11 @@ export const loadFrontend = async (cfg) => {
     const navLogo = document.createElement('div')
     navLogo.className = "nav-logo"
     navLogo.innerHTML = `
-      <img src="${config.contactInfo.logo}" >
+      <img src="${config.contactInfo.logo}">
     `
+    navLogo.onclick = () => {
+      navigate('/')
+    }
 
 
 
@@ -132,6 +135,7 @@ export const loadFrontend = async (cfg) => {
       button.onclick = (e) => {
         e.preventDefault()
         navigate(config.route)
+        
       }
       if(!config.disableMenuButton) {
         nav.append(button)
@@ -154,6 +158,13 @@ export const loadFrontend = async (cfg) => {
     header.append(menuButton)
   } catch (error) {
     console.error('Error:', error);
+  }
+
+  if (config.layout.showWhastappFloatingButton) {
+    const whatsappFloattingButton = document.createElement('whatsapp-floating-button')
+    whatsappFloattingButton.setAttribute('tel', config.contactInfo.phone.replace(")", "").replace("(", "").replace(" ", "").replace("-", ""))
+    document.body.append(whatsappFloattingButton)
+    console.log('added');
   }
   // Agregar todos los scripts al documento una vez que se hayan procesado todos los componentes
   let scriptsInnerHtml = ""
@@ -197,6 +208,7 @@ function renderRoute() {
     const header = document.querySelector('layout-header');
     header.classList.add('scrolled')
 
+    document.head.querySelector('title').innerText = `${config.contactInfo.companyName} - ${currentPage.config.name}`
     // if (window.location.pathname !== "/") {
     //   header.classList.add('scrolled')
     //   header.classList.remove('origin')
@@ -384,6 +396,10 @@ class WebLayout00 extends HTMLElement {
         layout-header header nav .nav-logo {
           justify-content: center;
         }
+        layout-header header nav .nav-logo  img{
+          object-fit: contain;
+          width: 100%;
+        }
         .desktop layout-header header nav .nav-logo {
           display: none;
         }
@@ -453,6 +469,7 @@ class WebLayout00 extends HTMLElement {
           display: none;
         }
         layout-header header .logo-container img {
+          cursor: pointer;
           object-fit: contain;
           height: 100%;
         }
@@ -484,6 +501,9 @@ class WebLayout00 extends HTMLElement {
       <layout-content></layout-content>
       <layout-footer></layout-footer>
     `;
+    document.querySelector('.logo-container').onclick = () => {
+      navigate("/")
+    }
     document.querySelector('.overlay').onclick = () => {
       document.querySelector('burguer-menu-button').shadowRoot.querySelector('button').click()
     }
@@ -723,6 +743,11 @@ class ImageCarousel extends HTMLElement {
           align-items: center;
           z-index: 1;
         }
+        @media screen and (max-width: 600px) {
+          img {
+            object-fit: contain!important;
+          }
+        }
       </style>
       <div class="carousel">
         <div class="image-container">
@@ -803,10 +828,15 @@ class ImageCarousel extends HTMLElement {
         
         descriptionElement.style.transition = '.5s all ease-in-out';
         descriptionElement.style.transform = 'skew(15deg)';
+        
+        if (incomingImage.fillColor) {
+          imageElement.style.background = incomingImage.fillColor
+        } else {
+          imageElement.style.background = 'green'
+        }
 
         if (incomingImage.forceContain) {
           imageElement.style.objectFit = "contain"
-          imageElement.style.background = incomingImage.fillColor
         } else {
           imageElement.style.objectFit = "cover"
         }
@@ -849,9 +879,14 @@ class ImageCarousel extends HTMLElement {
           imageElement.src = incomingImage.url;
           titleElement.textContent = incomingImage.title;
           descriptionElement.textContent = incomingImage.description;
+          if (incomingImage.fillColor) {
+            imageElement.style.background = incomingImage.fillColor
+          } else {
+            imageElement.style.background = 'green'
+          }
+  
           if (incomingImage.forceContain) {
             imageElement.style.objectFit = "contain"
-            imageElement.style.background = incomingImage.fillColor
           } else {
             imageElement.style.objectFit = "cover"
           }
@@ -893,25 +928,33 @@ class LayoutFooter extends HTMLElement {
           width: 48px;
           cursor: pinter;
         }
-        p {
+        p, a {
           display: flex;
           align-items: center;
           gap: 4px;
           margin: 0;
         }
+        @media screen and (max-width: ${config.layout.breakpoint}px) {
+          :host {
+            padding: 32px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+          }
+        }
       </style>
       <div class="footer-left-container">
         <p>CONTÀCTANOS</p>
-        <p>
+        <a href="tel:${config.contactInfo.phone}">
           <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M798-120q-125 0-247-54.5T329-329Q229-429 174.5-551T120-798q0-18 12-30t30-12h162q14 0 25 9.5t13 22.5l26 140q2 16-1 27t-11 19l-97 98q20 37 47.5 71.5T387-386q31 31 65 57.5t72 48.5l94-94q9-9 23.5-13.5T670-390l138 28q14 4 23 14.5t9 23.5v162q0 18-12 30t-30 12ZM241-600l66-66-17-94h-89q5 41 14 81t26 79Zm358 358q39 17 79.5 27t81.5 13v-88l-94-19-67 67ZM241-600Zm358 358Z"/></svg>
           ${config.contactInfo.phone}
-        </p>
+        </a>
 
 
-        <p> 
+        <a href="mailto:${config.contactInfo.email}"> 
           <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm320-280L160-640v400h640v-400L480-440Zm0-80 320-200H160l320 200ZM160-640v-80 480-400Z"/></svg>
           ${config.contactInfo.email}
-        </p>
+        </a>
         
         <p>${config.contactInfo.address}</p>
 
@@ -954,6 +997,70 @@ class LayoutFooter extends HTMLElement {
   }
 }
 
+class WhatsAppButton extends HTMLElement {
+  constructor() {
+      super();
+      this.attachShadow({ mode: 'open' });
+      this.render();
+  }
+
+  static get observedAttributes() {
+      return ['tel'];
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+      if (name === 'tel') {
+          this.updateLink(newValue);
+      }
+  }
+
+  render() {
+      const style = document.createElement('style');
+      style.textContent = `
+          .whatsapp-button {
+              position: fixed;
+              bottom: 20px;
+              right: 20px;
+              width: 60px;
+              height: 60px;
+              background-color: #25d366;
+              border-radius: 50%;
+              box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              z-index: 1000;
+              cursor: pointer;
+          }
+
+          .whatsapp-button img {
+              width: 35px;
+              height: 35px;
+          }
+      `;
+
+      const link = document.createElement('a');
+      link.className = 'whatsapp-button';
+      link.target = '_blank';
+      this.updateLink(this.getAttribute('tel'));
+
+      const img = document.createElement('img');
+      img.src = 'https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg';
+      img.alt = 'WhatsApp';
+
+      link.appendChild(img);
+      this.shadowRoot.append(style, link);
+  }
+
+  updateLink(tel) {
+      const link = this.shadowRoot.querySelector('a');
+      if (link && tel) {
+          link.href = `https://wa.me/${tel}`;
+      }
+  }
+}
+
+
 
 customElements.define('layout-footer', LayoutFooter);
 customElements.define('image-carousel', ImageCarousel);
@@ -961,4 +1068,5 @@ customElements.define('parallax-background', ParallaxBackground);
 customElements.define('page-not-found', PageNotFound);
 customElements.define('web-layout-00', WebLayout00);
 customElements.define('burguer-menu-button', BurguerMenuButton);
+customElements.define('whatsapp-floating-button', WhatsAppButton);
 window.addEventListener('popstate', async function (event) { renderRoute() });
