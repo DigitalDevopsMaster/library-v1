@@ -15,8 +15,6 @@ jobs:
           username: ${{secrets.DROPLET_USERNAME}}
           key: ${{secrets.SSH_PRIVATE_KEY}}
           script: |
-
-            cd --
             cd /var/www/digitaldevops.com.mx/
             rm -rf library-v1
             git clone git@github.com:DigitalDevopsMaster/library-v1.git
