@@ -543,6 +543,255 @@ class WebLayout00 extends HTMLElement {
   }
 }
 
+class AppLayout extends HTMLElement {
+  connectedCallback() {
+    getWidthOnResize(document.body, this.onResize)
+    const resetCSS = `
+      html, body, div, span, applet, object, iframe,
+      h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+      a, abbr, acronym, address, big, cite, code,
+      del, dfn, em, img, ins, kbd, q, s, samp,
+      small, strike, strong, sub, sup, tt, var,
+      b, u, i, center,
+      dl, dt, dd, ol, ul, li,
+      fieldset, form, label, legend,
+      table, caption, tbody, tfoot, thead, tr, th, td,
+      article, aside, canvas, details, embed, 
+      figure, figcaption, footer, header, hgroup, 
+      menu, nav, output, ruby, section, summary,
+      time, mark, audio, video {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        font-size: 100%;
+        font: inherit;
+        vertical-align: baseline;
+        display: flex;
+      }
+      body {
+        line-height: 1;
+      }
+      ol, ul {
+        list-style: none;
+      }
+      blockquote, q {
+        quotes: none;
+      }
+      blockquote:before, blockquote:after,
+      q:before, q:after {
+        content: '';
+        content: none;
+      }
+      table {
+        border-collapse: collapse;
+        border-spacing: 0;
+      }
+    `
+    this.topbarHeight = 48
+
+    this.innerHTML = `
+      <style>
+        ${resetCSS}
+        * {
+          box-sizing: border-box;
+        }
+        app-layout {
+          display: flex;
+          flex-direction: column;
+          width: 100vw;    
+          height: 100vh;
+          overflow: scroll;   
+        }
+        layout-header {
+          display: flex;
+          justify-content: center;
+          background: ${config.palette.primaryColor};
+          position: fixed;
+          top: 0;
+          left: 0;
+          z-index: 1;
+          width: 100%;
+        } 
+        layout-header header {
+          transition: ease-in-out .3s all; 
+          padding: 0 16px;
+          display: flex;
+          flex: 1;
+          max-width: ${config.layout.maxWidth}px;
+          height: ${this.topbarHeight}px;
+          justify-content: space-between;
+        }
+        layout-header.origin header .logo-container {
+          visibility: hidden;
+          opacity: 0;
+        }
+        layout-header.scrolled header .logo-container {
+          visibility: visible;
+          opacity: 1;
+        }
+        layout-header header .logo-container {
+          transition: all ease-in-out .3s;
+          visibility: hidden;
+          opacity: 0;
+          height: 100%;
+        }
+        layout-header header nav {
+          display: flex;
+          left: 0;
+          z-index: 10;
+          gap: 8px;
+          transition: .3s all ease-in-out;
+        }
+        layout-header header nav .nav-logo {
+          justify-content: center;
+        }
+        layout-header header nav .nav-logo  img{
+          object-fit: contain;
+          width: 100%;
+        }
+        .desktop layout-header header nav .nav-logo {
+          display: none;
+        }
+        .desktop layout-header header .overlay {
+          display: none;
+        }
+        .mobile layout-header header .overlay {
+          display: flex;
+        }
+        .mobile layout-header header nav + .overlay {
+          position: fixed;
+          background: ${config.palette.primaryColor};
+          width: 100%;
+          height: 100vh;
+          flex-direction: column;
+          overflow: hidden;
+          opacity: 0;
+          left: 0;
+          visibility: hidden;
+          transition: ease-in-out .3s all;
+        }
+        .mobile layout-header header nav.open + .overlay {
+          opacity: .8;
+          visibility: visible;
+        }
+        .mobile layout-header header nav {
+          position: fixed;
+          background: ${config.palette.backgroundSecondaryColor};
+          width: 100%;
+          flex-direction: column;
+          overflow: hidden;
+        }
+        .mobile layout-header header nav.open {
+          transform: translateY(0);
+        }
+        .mobile layout-header header nav {
+          align-items: center;
+          transform-origin: top;
+          transform: translateY(-100%);
+          justify-content: center;
+          padding: 48px 32px;
+          gap: 32px;
+        }
+        .mobile layout-header header nav a {
+          color: ${config.palette.textColor};
+          text-decoration: none;
+          justify-content: space-between;
+          display: flex;
+          border: 2px solid ${config.palette.textSecondaryColor};
+          padding: 16px;
+        }
+        layout-header header nav a {
+          color: ${config.palette.textColor};
+          text-decoration: none;
+          justify-content: center;
+          align-items: center;
+          padding: 16px;
+          display: flex;
+        }
+        layout-header header nav a.active {
+          border-bottom: 2px solid white;
+        }
+        layout-header header burguer-menu-button {
+          z-index: 11;
+        }
+        .desktop layout-header header burguer-menu-button {
+          display: none;
+        }
+        layout-header header .logo-container img {
+          cursor: pointer;
+          object-fit: contain;
+          height: 100%;
+        }
+        layout-content {
+          transition: ease-in-out .3s all; 
+          flex: 1;
+          flex-direction: column;
+          display: flex;
+          padding-top: 48px;
+        }
+        layout-content.scrolled{
+          padding-top: ${this.topbarHeight}px;
+        }
+        layout-content.origin{
+          padding-top: 0;
+        }
+        .header-full-screen {
+        }
+      </style>
+      <layout-header>
+        <header>
+          <div class="logo-container">
+            <img src="${config.contactInfo.logo}" >
+          </div>
+          <nav></nav>
+          <div class="overlay"></div>
+        </header>
+      </layout-header>
+      <layout-content></layout-content>
+    `;
+    document.querySelector('.logo-container').onclick = () => {
+      navigate("/")
+    }
+    document.querySelector('.overlay').onclick = () => {
+      document.querySelector('burguer-menu-button').shadowRoot.querySelector('button').click()
+    }
+    getScrollPosition(document.querySelector('app-layout'), (e) => this.onScroll(e))
+    document.querySelector('img').addEventListener('wheel', (event) => {
+      event.stopPropagation();
+      document.querySelector('app-layout').scrollTop += event.deltaY;
+    });
+    this.onResize(window.innerWidth)
+  }
+  onResize(e) {
+    const isMobile = e < config.layout.breakpoint;
+    const layout = document.querySelector('app-layout');
+    const hasMobileClass = layout.classList.contains('mobile');
+    if (isMobile != hasMobileClass) {
+      layout.classList.add(isMobile ? 'mobile' : 'desktop')
+      layout.classList.remove(!isMobile ? 'mobile' : 'desktop')
+    }
+  }
+  onScroll(e) {
+    const header = document.querySelector('layout-header');
+    const isHome = window.location.pathname === "/";
+    // if (isHome) {
+    //   if (e.scrollTop > window.innerHeight / 2) {
+    //     header.classList.add('scrolled')
+    //     header.classList.remove('origin')
+    //   } else {
+    //     header.classList.add('origin')
+    //     header.classList.remove('scrolled')
+    //   }
+    // }
+    const pathname = window.location.pathname
+    const currentPage = config.pages.find(({ config: pageConfig }) => {
+      return pageConfig.route === pathname
+    })
+    document.querySelector(`${currentPage?.name}-page`)?.setAttribute('scroll-position', e.scrollTop)
+  }
+}
+
+
 class BurguerMenuButton extends HTMLElement {
   constructor() {
     super();
@@ -1124,6 +1373,7 @@ customElements.define('image-carousel', ImageCarousel);
 customElements.define('parallax-background', ParallaxBackground);
 customElements.define('page-not-found', PageNotFound);
 customElements.define('web-layout-00', WebLayout00);
+customElements.define('app-layout', AppLayout);
 customElements.define('burguer-menu-button', BurguerMenuButton);
 customElements.define('whatsapp-floating-button', WhatsAppButton);
 window.addEventListener('popstate', async function (event) { renderRoute() });
