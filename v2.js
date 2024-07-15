@@ -20,7 +20,8 @@ export const navigate = (url) => {
         targetElement.scrollIntoView({ behavior: 'smooth' });
       }
     } else {
-      document.querySelector('web-layout-00').scroll({
+      const layout = document.querySelector('web-layout-00') || document.querySelector('app-layout')
+      layout.scroll({
         top: 0,
         left: 0,
         behavior: 'smooth' // O 'auto' para un scroll instantáneo
@@ -34,7 +35,8 @@ export const navigate = (url) => {
 }
 
 export const scrollTo = (pos) => {
-    document.querySelector('web-layout-00').scrollTo(pos);
+  const layout = document.querySelector('web-layout-00') || document.querySelector('app-layout')
+  layout.scrollTo(pos);
 }
 
 export const loadFrontend = async (cfg) => {
@@ -126,7 +128,7 @@ export const loadFrontend = async (cfg) => {
     }
 
 
-
+    const isAuthenticated = await checkSession(localStorage.getItem('token'));
     pages.forEach(({ config }) => {
       const button = document.createElement('a')
       button.href = `${config.route}`
@@ -137,8 +139,15 @@ export const loadFrontend = async (cfg) => {
         navigate(config.route)
         
       }
+
       if(!config.disableMenuButton) {
-        nav.append(button)
+        if (!config.protected||(config.protected && isAuthenticated)) {
+          nav.append(button)
+        }
+      } else if (config.disableMenuButton === "auth") {
+        if (!isAuthenticated) {
+          nav.append(button)
+        }
       }
     });
     nav.append(navLogo)
@@ -164,7 +173,6 @@ export const loadFrontend = async (cfg) => {
     const whatsappFloattingButton = document.createElement('whatsapp-floating-button')
     whatsappFloattingButton.setAttribute('tel', config.contactInfo.phone.replace(")", "").replace("(", "").replace(" ", "").replace("-", ""))
     document.body.append(whatsappFloattingButton)
-    console.log('added');
   }
   // Agregar todos los scripts al documento una vez que se hayan procesado todos los componentes
   let scriptsInnerHtml = ""
@@ -194,60 +202,96 @@ async function getJScontent(nombreArchivo) {
   }
 }
 
-function renderRoute() {
+async function checkSession(token) {
+
+  try {
+    const response = await fetch('/api/session', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`, // Envía el token almacenado en localStorage
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('No se pudo verificar la sesión');
+    }
+    const data = await response.json();
+    return true;
+    // Aquí puedes manejar la respuesta según tus necesidades
+    // Por ejemplo, actualizar el UI con información del usuario autenticado
+
+  } catch (error) {
+    console.error('Error al verificar sesión:', error);
+    // Manejo de errores
+    return null;
+  }
+};
+async function renderRoute() {
   const topbarHeight = 48
   const pathname = window.location.pathname
+  const isAuthenticated = await checkSession(localStorage.getItem('token'));
+
+
+
   const currentPage = config.pages.find(({ config: pageConfig }) => {
     return pageConfig.route === pathname
   })
-  if (!currentPage) {
+  if (!currentPage ) {
     document.querySelector("layout-content").innerHTML = `
       <page-not-found />
     `
   } else {
-    const header = document.querySelector('layout-header');
-    header.classList.add('scrolled')
-
-    document.head.querySelector('title').innerText = `${config.contactInfo.companyName} - ${currentPage.config.name}`
-    // if (window.location.pathname !== "/") {
-    //   header.classList.add('scrolled')
-    //   header.classList.remove('origin')
-    // } else {
-    //   header.classList.add('origin')
-    //   header.classList.remove('scrolled')
-    // }
-    document.querySelector("layout-content").innerHTML = `
-      ${window.location.pathname === "/" ? `
-        <style>
-          .hero {
-            padding-top: ${topbarHeight}px;
-            height: 50vh;
-            background: ${config.palette.primaryColor};
-            display: flex;
-            justify-content: center;
-            align-items: center;
-          }
-
-          .hero .hero-logo-container {
-            width: calc(100% - 32px);
-            max-width: 500px;
-            
-          }
-
-          .hero .hero-logo-container img {
-            width: 100%;
-          }
-
-        </style>
-        ` : ''}
-        
-      ${currentPage.component.outerHTML}
-      `;
-      // <div class="hero">
-      //   <div class="hero-logo-container">
-      //     <img src="${config.contactInfo.logo}" >
-      //   </div>
-      // </div>
+    if (isAuthenticated || !currentPage.config.protected) {
+      const header = document.querySelector('layout-header');
+      header.classList.add('scrolled')
+  
+      document.head.querySelector('title').innerText = `${config.contactInfo.companyName} - ${currentPage.config.name}`
+      // if (window.location.pathname !== "/") {
+      //   header.classList.add('scrolled')
+      //   header.classList.remove('origin')
+      // } else {
+      //   header.classList.add('origin')
+      //   header.classList.remove('scrolled')
+      // }
+      document.querySelector("layout-content").innerHTML = `
+        ${window.location.pathname === "/" ? `
+          <style>
+            .hero {
+              padding-top: ${topbarHeight}px;
+              height: 50vh;
+              background: ${config.palette.primaryColor};
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            }
+  
+            .hero .hero-logo-container {
+              width: calc(100% - 32px);
+              max-width: 500px;
+              
+            }
+  
+            .hero .hero-logo-container img {
+              width: 100%;
+            }
+  
+          </style>
+          ` : ''}
+          
+        ${currentPage.component.outerHTML}
+        `;
+        // <div class="hero">
+        //   <div class="hero-logo-container">
+        //     <img src="${config.contactInfo.logo}" >
+        //   </div>
+        // </div>
+      
+    } else {
+      document.querySelector("layout-content").innerHTML = `
+        <page-not-authorized />
+      `
+    }
   }
 }
 
@@ -289,6 +333,27 @@ class PageNotFound extends HTMLElement {
         <circle cx="150" cy="80" r="40" fill="#ff6347"/>
         <text x="150" y="90" font-size="40" fill="#ffffff" text-anchor="middle" alignment-baseline="middle">!</text>
         <text x="150" y="150" font-size="18" fill="#333333" text-anchor="middle" alignment-baseline="middle">Página no encontrada</text>
+      </svg>
+    `;
+  }
+}
+
+class PageNotAuthorized extends HTMLElement {
+  connectedCallback() {
+    this.innerHTML = `
+      <style>
+        page-not-authorized {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100%;
+        }
+      </style>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" width="300" height="200">
+        <rect width="100%" height="100%" fill="none"/>
+        <circle cx="150" cy="80" r="40" fill="#ff6347"/>
+        <text x="150" y="90" font-size="40" fill="#ffffff" text-anchor="middle" alignment-baseline="middle">X</text>
+        <text x="150" y="150" font-size="18" fill="#333333" text-anchor="middle" alignment-baseline="middle">No autorizado</text>
       </svg>
     `;
   }
@@ -606,6 +671,7 @@ class AppLayout extends HTMLElement {
           display: flex;
           justify-content: center;
           background: ${config.palette.primaryColor};
+          border-bottom: 1px solid ${config.palette.accentColor};
           position: fixed;
           top: 0;
           left: 0;
@@ -1372,6 +1438,7 @@ customElements.define('layout-footer', LayoutFooter);
 customElements.define('image-carousel', ImageCarousel);
 customElements.define('parallax-background', ParallaxBackground);
 customElements.define('page-not-found', PageNotFound);
+customElements.define('page-not-authorized', PageNotAuthorized);
 customElements.define('web-layout-00', WebLayout00);
 customElements.define('app-layout', AppLayout);
 customElements.define('burguer-menu-button', BurguerMenuButton);
