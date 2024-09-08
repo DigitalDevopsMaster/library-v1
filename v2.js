@@ -1432,37 +1432,112 @@ class WhatsAppButton extends HTMLElement {
   }
 }
 
-class ImageCarousel2 extends HTMLElement {
-  static get observedAttributes() {
-    return ['data-json'];
-  }
-
+class GenericTable extends HTMLElement {
   constructor() {
-    super();
-    this.attachShadow({ mode: 'open' });
+      super();
+      this.attachShadow({ mode: 'open' });
   }
 
-  attributeChangedCallback(name, oldValue, newValue) {
-    if (name === 'data-json') {
-      this.renderJson(newValue);
-    }
+  set data({ columns, rows }) {
+      this._columns = columns;
+      this._rows = rows;
+      this.render();
   }
 
-  renderJson(jsonString) {
-      this.shadowRoot.innerHTML = jsonString;
-  }
+  render() {
+      const styles = `
+          <style>
+              .generic-table {
+                  display: flex;
+                  flex-direction: column;
+                  background: #fff;
+                  padding: 20px;
+                  margin: 10px;
+                  border-radius: 8px;
+                  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+              }
+              .table-header, .table-body {
+                  flex-direction: column;
+              }
+              .table-row {
+                  display: flex;
+                  white-space: nowrap;
+                  gap: 16px;
+                  height: 45px;
+                  align-items: center;
+              }
+              .table-header .table-row, .table-body .table-row {
+                  flex: 1;
+              }
+              .table-row:nth-of-type(2n) {
+                  background: rgba(0,0,0,0.05);
+              }
+              .no-results {
+                  text-align: center;
+                  color: #888;
+                  font-style: italic;
+              }
+              .action-btn {
+                  background: #2980b9;
+                  color: #fff;
+                  border: none;
+                  padding: 4px 8px;
+                  border-radius: 4px;
+                  cursor: pointer;
+              }
+              .action-btn:hover {
+                  background: #1f639a;
+              }
+          </style>
+      `;
 
-  connectedCallback() {
-    // Initialize with the current attribute value
-    if (this.hasAttribute('data-json')) {
-      this.renderJson(this.getAttribute('data-json'));
-    }
+      const header = this._columns.map(column => `<div>${column.label}</div>`).join('');
+      const rows = this._rows.map(row => `
+          <div class="table-row">
+              ${this._columns.map(column => `<div>${row[column.field]}</div>`).join('')}
+              <div>
+                  <button class="action-btn edit-btn" data-id="${row.id}">Editar</button>
+                  <button class="action-btn delete-btn" data-id="${row.id}">Eliminar</button>
+              </div>
+          </div>
+      `).join('');
+
+      const noResultsMessage = this._rows.length === 0 ? 
+          `<div class="no-results">No se encontraron resultados</div>` : '';
+
+      this.shadowRoot.innerHTML = `
+          ${styles}
+          <div class="generic-table">
+              <div class="table-header">
+                  <div class="table-row">
+                      ${header}
+                      <div>Acciones</div>
+                  </div>
+              </div>
+              <div class="table-body">
+                  ${rows || noResultsMessage}
+              </div>
+          </div>
+      `;
+
+      this.shadowRoot.querySelector('.table-body').addEventListener('click', (event) => {
+          if (event.target.classList.contains('edit-btn') || event.target.classList.contains('delete-btn')) {
+              this.dispatchEvent(new CustomEvent('action', {
+                  detail: {
+                      actionType: event.target.classList.contains('edit-btn') ? 'edit' : 'delete',
+                      id: event.target.getAttribute('data-id')
+                  }
+              }));
+          }
+      });
   }
 }
 
+customElements.define('generic-table', GenericTable);
+
+
 
 customElements.define('layout-footer', LayoutFooter);
-customElements.define('test-component', ImageCarousel2);
 customElements.define('image-carousel', ImageCarousel);
 customElements.define('parallax-background', ParallaxBackground);
 customElements.define('page-not-found', PageNotFound);
