@@ -1520,7 +1520,7 @@ class DynamicTable extends HTMLElement {
 
       const rowsHtml = this._state.rows.map((row, rowIndex) => `
           <div class="table-row">
-              ${this._state.columns.map(column => `<div>${row || ''}</div>`).join('')}
+              ${this._state.columns.map((column, i) => `<div>${row.split(',')[i] || ''}</div>`).join('')}
               <div>
                   <button class="edit-btn" data-index="${rowIndex}">Editar</button>
                   <button class="delete-btn" data-index="${rowIndex}">Eliminar</button>
