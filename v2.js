@@ -1440,17 +1440,6 @@ class ImageCarousel2 extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
-    this.shadowRoot.innerHTML = `
-      <style>
-        p {
-          font-size: 24px;
-          font-weight: bold;
-          color: purple;
-        }
-      </style>
-      <p>ESTO ES MAGIA MI ESTIMADO PANCHO</p>
-      <pre id="json-output"></pre>
-    `;
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
