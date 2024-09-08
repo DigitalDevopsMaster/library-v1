@@ -1460,13 +1460,7 @@ class ImageCarousel2 extends HTMLElement {
   }
 
   renderJson(jsonString) {
-    const jsonOutput = this.shadowRoot.querySelector('#json-output');
-    try {
-      const jsonObject = JSON.parse(jsonString);
-      jsonOutput.textContent = JSON.stringify(jsonObject, null, 2);
-    } catch (error) {
-      jsonOutput.textContent = "Invalid JSON";
-    }
+      this.shadowRoot.innerHTML = jsonString;
   }
 
   connectedCallback() {
