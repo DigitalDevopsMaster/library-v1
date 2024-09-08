@@ -1433,30 +1433,47 @@ class WhatsAppButton extends HTMLElement {
 }
 
 class ImageCarousel2 extends HTMLElement {
+  static get observedAttributes() {
+    return ['data-json'];
+  }
+
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.innerHTML = `
       <style>
-        .magic-text {
-          font-size: 48px;
-          color: #ff6347; /* Un bonito tono de rojo */
+        p {
+          font-size: 24px;
           font-weight: bold;
-          text-align: center;
-          padding: 20px;
-          margin: 0;
-          background-color: #f0f8ff; /* Un suave color de fondo */
-          border: 2px solid #000; /* Un borde negro para resaltar */
-          border-radius: 10px;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+          color: purple;
         }
       </style>
-      <div class="magic-text">ESTO ES MAGIA MI ESTIMADO PANCHO</div>
+      <p>ESTO ES MAGIA MI ESTIMADO PANCHO</p>
+      <pre id="json-output"></pre>
     `;
   }
 
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (name === 'data-json') {
+      this.renderJson(newValue);
+    }
+  }
+
+  renderJson(jsonString) {
+    const jsonOutput = this.shadowRoot.querySelector('#json-output');
+    try {
+      const jsonObject = JSON.parse(jsonString);
+      jsonOutput.textContent = JSON.stringify(jsonObject, null, 2);
+    } catch (error) {
+      jsonOutput.textContent = "Invalid JSON";
+    }
+  }
+
   connectedCallback() {
-    // Aquí podrías agregar más lógica si es necesario
+    // Initialize with the current attribute value
+    if (this.hasAttribute('data-json')) {
+      this.renderJson(this.getAttribute('data-json'));
+    }
   }
 }
 
