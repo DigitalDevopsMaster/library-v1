@@ -1432,9 +1432,25 @@ class WhatsAppButton extends HTMLElement {
   }
 }
 
+class ImageCarousel2 extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.shadowRoot.innerHTML = `
+      <style>
+      </style>
+      Esto si que es de gangsters
+    `;
+  }
+
+  connectedCallback() {
+  }
+
+}
 
 
 customElements.define('layout-footer', LayoutFooter);
+customElements.define('test-component', ImageCarousel2);
 customElements.define('image-carousel', ImageCarousel);
 customElements.define('parallax-background', ParallaxBackground);
 customElements.define('page-not-found', PageNotFound);
