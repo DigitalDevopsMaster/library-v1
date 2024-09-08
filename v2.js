@@ -1438,14 +1438,26 @@ class ImageCarousel2 extends HTMLElement {
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.innerHTML = `
       <style>
+        .magic-text {
+          font-size: 48px;
+          color: #ff6347; /* Un bonito tono de rojo */
+          font-weight: bold;
+          text-align: center;
+          padding: 20px;
+          margin: 0;
+          background-color: #f0f8ff; /* Un suave color de fondo */
+          border: 2px solid #000; /* Un borde negro para resaltar */
+          border-radius: 10px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
       </style>
-      Esto si que es de gangsters
+      <div class="magic-text">ESTO ES MAGIA MI ESTIMADO PANCHO</div>
     `;
   }
 
   connectedCallback() {
+    // Aquí podrías agregar más lógica si es necesario
   }
-
 }
 
 
