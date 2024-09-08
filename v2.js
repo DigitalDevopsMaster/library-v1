@@ -1448,6 +1448,7 @@ class DynamicTable extends HTMLElement {
           this._state.columns = JSON.parse(newValue || '[]');
       }
       if (name === 'rows') {
+          console.log({newValue});
           this._state.rows = JSON.parse(newValue || '[]');
       }
       if (name === 'onedit') {
@@ -1519,7 +1520,7 @@ class DynamicTable extends HTMLElement {
 
       const rowsHtml = this._state.rows.map((row, rowIndex) => `
           <div class="table-row">
-              ${this._state.columns.map(column => `<div>${row[column] || ''}</div>`).join('')}
+              ${this._state.columns.map(column => `<div>${row || ''}</div>`).join('')}
               <div>
                   <button class="edit-btn" data-index="${rowIndex}">Editar</button>
                   <button class="delete-btn" data-index="${rowIndex}">Eliminar</button>
