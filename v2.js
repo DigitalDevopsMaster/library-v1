@@ -1432,23 +1432,46 @@ class WhatsAppButton extends HTMLElement {
   }
 }
 
-class GenericTable extends HTMLElement {
+class DynamicTable extends HTMLElement {
   constructor() {
       super();
+      this._state = { rows: [], columns: [] };
       this.attachShadow({ mode: 'open' });
   }
 
-  set data({ columns, rows }) {
-      this._columns = columns;
-      this._rows = rows;
+  static get observedAttributes() {
+      return ['columns', 'rows', 'onedit', 'ondelete'];
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+      if (name === 'columns') {
+          this._state.columns = JSON.parse(newValue || '[]');
+      }
+      if (name === 'rows') {
+          this._state.rows = JSON.parse(newValue || '[]');
+      }
+      if (name === 'onedit') {
+          this._onEdit = eval(newValue);
+      }
+      if (name === 'ondelete') {
+          this._onDelete = eval(newValue);
+      }
+      this.render();
+  }
+
+  connectedCallback() {
       this.render();
   }
 
   render() {
       const styles = `
           <style>
-              .generic-table {
+              div {
                   display: flex;
+              }
+              .table-container {
+                  display: flex;
+                  gap: 16px;
                   flex-direction: column;
                   background: #fff;
                   padding: 20px;
@@ -1460,13 +1483,12 @@ class GenericTable extends HTMLElement {
                   flex-direction: column;
               }
               .table-row {
-                  display: flex;
                   white-space: nowrap;
                   gap: 16px;
                   height: 45px;
                   align-items: center;
               }
-              .table-header .table-row, .table-body .table-row {
+              .table-header div, .table-row div {
                   flex: 1;
               }
               .table-row:nth-of-type(2n) {
@@ -1477,66 +1499,67 @@ class GenericTable extends HTMLElement {
                   color: #888;
                   font-style: italic;
               }
-              .action-btn {
-                  background: #2980b9;
+              .delete-btn, .edit-btn {
+                  background: #e74c3c;
                   color: #fff;
                   border: none;
                   padding: 4px 8px;
                   border-radius: 4px;
                   cursor: pointer;
               }
-              .action-btn:hover {
-                  background: #1f639a;
+              .delete-btn:hover, .edit-btn:hover {
+                  background: #c0392b;
+              }
+              .edit-btn {
+                  background: #2980b9;
+                  margin-right: 8px;
               }
           </style>
       `;
 
-      const header = this._columns.map(column => `<div>${column.label}</div>`).join('');
-      const rows = this._rows.map(row => `
+      const rowsHtml = this._state.rows.map((row, rowIndex) => `
           <div class="table-row">
-              ${this._columns.map(column => `<div>${row[column.field]}</div>`).join('')}
+              ${this._state.columns.map(column => `<div>${row[column] || ''}</div>`).join('')}
               <div>
-                  <button class="action-btn edit-btn" data-id="${row.id}">Editar</button>
-                  <button class="action-btn delete-btn" data-id="${row.id}">Eliminar</button>
+                  <button class="edit-btn" data-index="${rowIndex}">Editar</button>
+                  <button class="delete-btn" data-index="${rowIndex}">Eliminar</button>
               </div>
           </div>
       `).join('');
 
-      const noResultsMessage = this._rows.length === 0 ? 
+      const noResultsMessage = this._state.rows.length === 0 ? 
           `<div class="no-results">No se encontraron resultados</div>` : '';
 
       this.shadowRoot.innerHTML = `
           ${styles}
-          <div class="generic-table">
+          <div class="table-container">
               <div class="table-header">
                   <div class="table-row">
-                      ${header}
+                      ${this._state.columns.map(column => `<div>${column}</div>`).join('')}
                       <div>Acciones</div>
                   </div>
               </div>
               <div class="table-body">
-                  ${rows || noResultsMessage}
+                  ${rowsHtml || noResultsMessage}
               </div>
           </div>
       `;
 
-      this.shadowRoot.querySelector('.table-body').addEventListener('click', (event) => {
-          if (event.target.classList.contains('edit-btn') || event.target.classList.contains('delete-btn')) {
-              this.dispatchEvent(new CustomEvent('action', {
-                  detail: {
-                      actionType: event.target.classList.contains('edit-btn') ? 'edit' : 'delete',
-                      id: event.target.getAttribute('data-id')
-                  }
-              }));
-          }
-      });
+      this.shadowRoot.querySelector('.table-body').addEventListener('click', this.handleAction.bind(this));
+  }
+
+  handleAction(event) {
+      const rowIndex = event.target.getAttribute('data-index');
+      const row = this._state.rows[rowIndex];
+      if (event.target.classList.contains('edit-btn')) {
+          this._onEdit && this._onEdit(row);
+      } else if (event.target.classList.contains('delete-btn')) {
+          this._onDelete && this._onDelete(row);
+      }
   }
 }
 
-customElements.define('generic-table', GenericTable);
-
-
-
+customElements.define('dynamic-table', DynamicTable);
 customElements.define('layout-footer', LayoutFooter);
 customElements.define('image-carousel', ImageCarousel);
 customElements.define('parallax-background', ParallaxBackground);
