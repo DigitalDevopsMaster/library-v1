@@ -141,7 +141,14 @@ class LoginPage extends HTMLElement {
 
   connectedCallback() {
       const endpoints = this.getAttribute('data-endpoints');
-      const csrfToken = this.getAttribute('data-csrftoken');
+      // Obtén la etiqueta meta usando el nombre 'csrf-token'
+      const metaTag = document.querySelector('meta[name="csrf-token"]');
+
+      // Obtén el valor del atributo 'content' de la etiqueta meta
+      const csrfToken = metaTag ? metaTag.getAttribute('content') : 'No CSRF token found';
+
+      // Muestra el valor en la consola
+      console.log(csrfToken);
       
       if (endpoints) {
           try {
@@ -154,6 +161,8 @@ class LoginPage extends HTMLElement {
       if (csrfToken) {
           this.updateState({ csrfToken });
       }
+
+      
       
       this.render();
   }
