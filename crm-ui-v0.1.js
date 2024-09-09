@@ -205,6 +205,11 @@ class LoginPage extends HTMLElement {
   }
 
   render() {
+      console.log('Attributes of', this.tagName.toLowerCase(), ':');
+      Array.from(this.attributes).forEach(attr => {
+          console.log(`${attr.name}: ${attr.value}`);
+      });
+
       const styles = `
           <style>
               :host {
