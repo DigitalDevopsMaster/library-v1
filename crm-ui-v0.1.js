@@ -134,12 +134,15 @@ class LoginPage extends HTMLElement {
               forgotPassword: null,
               register: null,
           },
+          csrfToken: null,
       };
       this.attachShadow({ mode: 'open' });
   }
 
   connectedCallback() {
       const endpoints = this.getAttribute('data-endpoints');
+      const csrfToken = this.getAttribute('data-csrftoken');
+      
       if (endpoints) {
           try {
               this.updateState({ endpoints: JSON.parse(endpoints) });
@@ -147,6 +150,11 @@ class LoginPage extends HTMLElement {
               console.error('Error parsing endpoints:', e);
           }
       }
+
+      if (csrfToken) {
+          this.updateState({ csrfToken });
+      }
+      
       this.render();
   }
 
@@ -161,6 +169,7 @@ class LoginPage extends HTMLElement {
       const data = {
           username: formData.get('username'),
           password: formData.get('password'),
+          _csrf: formData.get('_csrf'), // Incluyendo el token CSRF en los datos enviados
       };
       const loginEndpoint = this._state.endpoints.login;
 
@@ -254,12 +263,17 @@ class LoginPage extends HTMLElement {
           </style>
       `;
 
+      const csrfInput = this._state.csrfToken 
+          ? `<input type="hidden" name="_csrf" value="${this._state.csrfToken}">`
+          : '';
+
       this.shadowRoot.innerHTML = `
           ${styles}
           <div class="login-container">
               <h2>Login</h2>
               <form>
                   <div class="error-message"></div>
+                  ${csrfInput}
                   <input type="text" name="username" placeholder="Username" required autofocus>
                   <input type="password" name="password" placeholder="Password" required>
                   <button type="submit">Login</button>
@@ -276,4 +290,5 @@ class LoginPage extends HTMLElement {
 }
 
 customElements.define('login-page', LoginPage);
+
 customElements.define('dynamic-table', DynamicTable);
