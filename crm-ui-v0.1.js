@@ -141,15 +141,9 @@ class LoginPage extends HTMLElement {
 
   connectedCallback() {
       const endpoints = this.getAttribute('data-endpoints');
-      // Obtén la etiqueta meta usando el nombre 'csrf-token'
       const metaTag = document.querySelector('meta[name="csrf-token"]');
-
-      // Obtén el valor del atributo 'content' de la etiqueta meta
       const csrfToken = metaTag ? metaTag.getAttribute('content') : 'No CSRF token found';
-
-      // Muestra el valor en la consola
       console.log(csrfToken);
-      
       if (endpoints) {
           try {
               this.updateState({ endpoints: JSON.parse(endpoints) });
@@ -172,13 +166,26 @@ class LoginPage extends HTMLElement {
       this.render();
   }
 
+  serializeData(data) {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(data)) {
+      if (Array.isArray(value)) {
+        value.forEach(item => params.append(key, item));
+      } else {
+        params.append(key, value);
+      }
+    }
+    return `${params.toString()}`;
+  }
+
   handleLogin(event) {
       event.preventDefault();
       const formData = new FormData(this.shadowRoot.querySelector('form'));
+      
       const data = {
-          username: formData.get('username'),
-          password: formData.get('password'),
-          _csrf: formData.get('_csrf'), // Incluyendo el token CSRF en los datos enviados
+        "user:email": [formData.get('user_email')],
+        "user:password": [formData.get('user_password')],
+        "_csrf": [formData.get('_csrf')], // Incluyendo el token CSRF en los datos enviados
       };
       const loginEndpoint = this._state.endpoints.login;
 
@@ -186,18 +193,17 @@ class LoginPage extends HTMLElement {
           fetch(loginEndpoint, {
               method: 'POST',
               headers: {
-                  'Content-Type': 'application/json',
+                  'Content-Type': 'application/x-www-form-urlencoded',
               },
-              body: JSON.stringify(data),
+              body: this.serializeData(data),
           })
-          .then(response => response.json())
-          .then(data => {
-              if (data.success) {
-                  window.location.href = data.redirect || '/';
+          .then(response => {
+            if (response.status === 200) {
+                window.location.href = '/';
               } else {
-                  this.shadowRoot.querySelector('.error-message').textContent = 'Invalid credentials';
-              }
-          })
+                return this.shadowRoot.querySelector('.error-message').textContent = 'Invalid credentials'; // Handle unsuccessful login response
+            }
+        })
           .catch(error => console.error('Login error:', error));
       } else {
           console.error('Login endpoint is not set');
@@ -288,8 +294,8 @@ class LoginPage extends HTMLElement {
               <form>
                   <div class="error-message"></div>
                   ${csrfInput}
-                  <input type="text" name="username" placeholder="Username" required autofocus>
-                  <input type="password" name="password" placeholder="Password" required>
+                  <input type="text" name="user_email" placeholder="Username" required autofocus>
+                  <input type="password" name="user_password" placeholder="Password" required>
                   <button type="submit">Login</button>
               </form>
               <div class="links">
