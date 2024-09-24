@@ -354,8 +354,243 @@ class AttributesTest extends HTMLElement {
       });
     }
 }
-  
-// Define the custom element
+
+class BoardComponent extends HTMLElement {
+    constructor() {
+        super();
+        this._candidates = [];
+        this.onUpdateState = null;
+        this.draggedElement = null;
+        this.insertionPoint = null;
+        this.columns = []
+    }
+
+    set candidates(value) {
+        this._candidates = value;
+        this.columns = new Set(); // Usamos un Set para evitar duplicados
+      
+        value.forEach(candidate => {
+            this.columns.add(candidate.status);
+        });
+      
+        this.render();
+    }
+
+    connectedCallback() {
+        this.render();
+    }
+
+    render() {
+        this.innerHTML = `
+            <div class="board">
+                ${this.generateColumns()}
+                
+            </div>
+        `;
+        this.populateColumns();
+    }
+
+    generateColumns() {
+        let columns = ``
+        this.columns.forEach(column => {
+            columns = `${columns} <div class="column" id="${column}Column" ondragover="event.preventDefault()" ondrop="this.closest('board-component').handleDrop(event, '${column}')"><h2>${column}</h2></div>`
+        });
+        return columns
+    }
+
+
+
+
+    populateColumns() {
+        const columns =  {}      
+        this.columns.forEach((col) => {
+            columns[col] = this.querySelector(`#${col}Column`)
+        })
+        // {
+        //     "First Contact": this.querySelector('#firstContactColumn'),
+        //     "Interview": this.querySelector('#interviewColumn'),
+        //     "Offer": this.querySelector('#offerColumn'),
+        //     "Client": this.querySelector('#clientColumn'),
+        //     "Deleted": this.querySelector('#deletedColumn')
+        // };
+
+        this._candidates.forEach(candidate => {
+            const card = document.createElement('candidate-card');
+            card.candidate = candidate;
+            card.id = candidate.id;
+            card.draggable = true;
+
+            card.addEventListener('dragstart', (event) => {
+                event.dataTransfer.setData('text/plain', candidate.id);
+                card.classList.add('dragging');
+                this.draggedElement = card;
+            });
+
+            card.addEventListener('dragend', () => {
+                card.classList.remove('dragging');
+                this.draggedElement = null;
+                if (this.insertionPoint) {
+                    this.insertionPoint.remove();
+                    this.insertionPoint = null;
+                }
+            });
+            console.log(columns)
+            console.log(candidate.statu)
+
+            columns[candidate.status].appendChild(card);
+        });
+
+        Object.values(columns).forEach(column => {
+            column.addEventListener('dragover', e => {
+                e.preventDefault();
+                const afterElement = this.getDragAfterElement(column, e.clientY);
+                if (this.insertionPoint) this.insertionPoint.remove();
+                this.insertionPoint = document.createElement('div');
+                this.insertionPoint.className = 'insertion-point';
+                if (afterElement == null) {
+                    column.appendChild(this.insertionPoint);
+                } else {
+                    column.insertBefore(this.insertionPoint, afterElement);
+                }
+            });
+
+            column.addEventListener('dragleave', e => {
+                if (e.target === column && this.insertionPoint) {
+                    this.insertionPoint.remove();
+                    this.insertionPoint = null;
+                }
+            });
+        });
+    }
+
+    getDragAfterElement(column, y) {
+        const draggableElements = [...column.querySelectorAll('candidate-card:not(.dragging)')];
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    handleDrop(event, newStatus) {
+        event.preventDefault();
+        const candidateId = event.dataTransfer.getData('text');
+        const candidate = this._candidates.find(c => c.id === candidateId);
+        const column = event.target.closest('.column');
+        const cards = [...column.querySelectorAll('candidate-card')];
+        const newIndex = this.insertionPoint ? cards.indexOf(this.insertionPoint.nextElementSibling) : cards.length;
+
+        if (candidate) {
+            const oldIndex = this._candidates.findIndex(c => c.id === candidateId);
+            this._candidates.splice(oldIndex, 1);
+            
+            candidate.status = newStatus;
+            this._candidates.splice(newIndex, 0, candidate);
+            
+            // Immediately update the DOM to reflect the new order
+            this.render();
+            
+            // Apply animation after the DOM has been updated
+            requestAnimationFrame(() => {
+                const newCard = document.getElementById(candidateId);
+                newCard.classList.add('appearing');
+                
+                // Push down cards below
+                const cardsBelow = cards.slice(newIndex + 1);
+                cardsBelow.forEach(card => {
+                    card.classList.add('push-down');
+                    setTimeout(() => card.classList.remove('push-down'), 300);
+                });
+            });
+            
+            if (this.onUpdateState) {
+                this.onUpdateState({ candidateId, newStatus, newIndex });
+            }
+        }
+
+        if (this.insertionPoint) {
+            this.insertionPoint.remove();
+            this.insertionPoint = null;
+        }
+    }
+}
+
+class CandidateCard extends HTMLElement {
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+    }
+
+    connectedCallback() {
+        this.render();
+    }
+
+    set candidate(value) {
+        this._candidate = value;
+        this.render();
+    }
+
+    render() {
+        const styles = `
+            <style>
+                .card { 
+                    border: 1px solid #e0e0e0; 
+                    border-radius: 8px;
+                    padding: 15px; 
+                    margin-bottom: 15px; 
+                    transition: all 0.3s; 
+                    background-color: white;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+                .card:hover {
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+                    transform: translateY(-2px);
+                }
+                h3 { 
+                    margin-top: 0; 
+                    color: #2c3e50;
+                    font-size: 1.1em;
+                }
+                p { 
+                    margin: 5px 0; 
+                    color: #34495e;
+                    font-size: 0.9em;
+                }
+                :host(.dragging) .card { 
+                    opacity: 0.5; 
+                    transform: scale(0.95);
+                    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+                }
+                :host(.appearing) .card {
+                    animation: appear 0.3s forwards;
+                }
+                @keyframes appear {
+                    from { opacity: 0; transform: scale(0.8); }
+                    to { opacity: 1; transform: scale(1); }
+                }
+            </style>
+        `;
+
+        this.shadowRoot.innerHTML = `
+            ${styles}
+            <div class="card">
+                <h3>${this._candidate.name}</h3>
+                <p>ID: ${this._candidate.id}</p>
+                <p>Status: ${this._candidate.status}</p>
+                <p>Phone: ${this._candidate.phone}</p>
+            </div>
+        `;
+    }
+}
+
+customElements.define('candidate-card', CandidateCard);
+
+customElements.define('board-component', BoardComponent);
+
 customElements.define('attributes-test', AttributesTest);
 
 customElements.define('login-page', LoginPage);
