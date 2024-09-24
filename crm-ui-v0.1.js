@@ -334,7 +334,7 @@ class AttributesTest extends HTMLElement {
     logAttributes() {
       // Log all current attributes
       const attributes = this.getAttributeNames();
-      console.log('Updated component attributes:', attributes);
+      attributes.forEach((key) => console.log(this.getAttribute(key)))
     }
   
     observeAttributes() {
@@ -353,11 +353,10 @@ class AttributesTest extends HTMLElement {
         attributes: true // This observes only attribute changes
       });
     }
-  }
+}
   
-  // Define the custom element
-  customElements.define('attributes-test', AttributesTest);
-  
+// Define the custom element
+customElements.define('attributes-test', AttributesTest);
 
 customElements.define('login-page', LoginPage);
 
