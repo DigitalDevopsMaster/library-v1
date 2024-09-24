@@ -125,6 +125,7 @@ class DynamicTable extends HTMLElement {
       }
   }
 }
+
 class LoginPage extends HTMLElement {
   constructor() {
       super();
@@ -308,6 +309,28 @@ class LoginPage extends HTMLElement {
       this.shadowRoot.querySelector('form').addEventListener('submit', this.handleLogin.bind(this));
   }
 }
+
+class AttributesTest extends HTMLElement {
+    constructor() {
+      super();
+  
+      // Attach shadow DOM (optional, you can remove this if you don't need shadow DOM)
+      const shadow = this.attachShadow({ mode: 'open' });
+  
+      // Create a container for the text
+      const container = document.createElement('div');
+      container.textContent = 'ATTRIBUTES TEST';
+  
+      // Append the container to shadow DOM or directly to the component
+      shadow.appendChild(container);
+  
+      // Log all attributes
+      const attributes = this.getAttributeNames();
+      console.log('Component attributes:', attributes);
+    }
+}
+  
+customElements.define('attributes-test', AttributesTest);
 
 customElements.define('login-page', LoginPage);
 
