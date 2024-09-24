@@ -314,23 +314,50 @@ class AttributesTest extends HTMLElement {
     constructor() {
       super();
   
-      // Attach shadow DOM (optional, you can remove this if you don't need shadow DOM)
+      // Attach shadow DOM (optional)
       const shadow = this.attachShadow({ mode: 'open' });
   
       // Create a container for the text
       const container = document.createElement('div');
       container.textContent = 'ATTRIBUTES TEST';
   
-      // Append the container to shadow DOM or directly to the component
+      // Append the container to shadow DOM
       shadow.appendChild(container);
   
-      // Log all attributes
-      const attributes = this.getAttributeNames();
-      console.log('Component attributes:', attributes);
-    }
-}
+      // Log initial attributes
+      this.logAttributes();
   
-customElements.define('attributes-test', AttributesTest);
+      // Observe changes to attributes dynamically using MutationObserver
+      this.observeAttributes();
+    }
+  
+    logAttributes() {
+      // Log all current attributes
+      const attributes = this.getAttributeNames();
+      console.log('Updated component attributes:', attributes);
+    }
+  
+    observeAttributes() {
+      // Create a MutationObserver to watch for attribute changes
+      const observer = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+          if (mutation.type === 'attributes') {
+            console.log(`Attribute '${mutation.attributeName}' changed`);
+            this.logAttributes();
+          }
+        });
+      });
+  
+      // Start observing this element for attribute changes
+      observer.observe(this, {
+        attributes: true // This observes only attribute changes
+      });
+    }
+  }
+  
+  // Define the custom element
+  customElements.define('attributes-test', AttributesTest);
+  
 
 customElements.define('login-page', LoginPage);
 
