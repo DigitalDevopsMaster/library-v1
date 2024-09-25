@@ -358,7 +358,8 @@ class AttributesTest extends HTMLElement {
 class BoardComponent extends HTMLElement {
     constructor() {
         super();
-        this._candidates = [];
+        this._candidates = JSON.parse(this.getAttribute('data-candidates'));
+        console.log( JSON.parse(this.getAttribute('data-candidates')));
         this.onUpdateState = null;
         this.draggedElement = null;
         this.insertionPoint = null;
@@ -375,6 +376,7 @@ class BoardComponent extends HTMLElement {
       
         this.render();
     }
+    
 
     connectedCallback() {
         this.render();
@@ -390,7 +392,14 @@ class BoardComponent extends HTMLElement {
         this.populateColumns();
     }
 
+
     generateColumns() {
+        this.columns = new Set(); // Usamos un Set para evitar duplicados
+      
+        this._candidates.forEach(candidate => {
+            this.columns.add(candidate.status);
+        });
+      
         let columns = ``
         this.columns.forEach(column => {
             columns = `${columns} <div class="column" id="${column}Column" ondragover="event.preventDefault()" ondrop="this.closest('board-component').handleDrop(event, '${column}')"><h2>${column}</h2></div>`
@@ -398,21 +407,11 @@ class BoardComponent extends HTMLElement {
         return columns
     }
 
-
-
-
     populateColumns() {
         const columns =  {}      
         this.columns.forEach((col) => {
             columns[col] = this.querySelector(`#${col}Column`)
         })
-        // {
-        //     "First Contact": this.querySelector('#firstContactColumn'),
-        //     "Interview": this.querySelector('#interviewColumn'),
-        //     "Offer": this.querySelector('#offerColumn'),
-        //     "Client": this.querySelector('#clientColumn'),
-        //     "Deleted": this.querySelector('#deletedColumn')
-        // };
 
         this._candidates.forEach(candidate => {
             const card = document.createElement('candidate-card');
@@ -434,9 +433,7 @@ class BoardComponent extends HTMLElement {
                     this.insertionPoint = null;
                 }
             });
-            console.log(columns)
-            console.log(candidate.statu)
-
+            console.log({candidate}, candidate.status);
             columns[candidate.status].appendChild(card);
         });
 
@@ -478,11 +475,22 @@ class BoardComponent extends HTMLElement {
 
     handleDrop(event, newStatus) {
         event.preventDefault();
+        console.log('drop');
         const candidateId = event.dataTransfer.getData('text');
         const candidate = this._candidates.find(c => c.id === candidateId);
         const column = event.target.closest('.column');
         const cards = [...column.querySelectorAll('candidate-card')];
         const newIndex = this.insertionPoint ? cards.indexOf(this.insertionPoint.nextElementSibling) : cards.length;
+        console.log(
+             {
+                event,
+                candidateId,
+                candidate,
+                column,
+                cards,
+                newIndex
+             }
+        );
 
         if (candidate) {
             const oldIndex = this._candidates.findIndex(c => c.id === candidateId);
@@ -507,6 +515,8 @@ class BoardComponent extends HTMLElement {
                 });
             });
             
+            console.log({ candidateId, newStatus, newIndex });
+
             if (this.onUpdateState) {
                 this.onUpdateState({ candidateId, newStatus, newIndex });
             }
@@ -518,6 +528,7 @@ class BoardComponent extends HTMLElement {
         }
     }
 }
+
 
 class CandidateCard extends HTMLElement {
     constructor() {
