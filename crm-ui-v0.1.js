@@ -355,10 +355,82 @@ class AttributesTest extends HTMLElement {
     }
 }
 
+class CandidateCard extends HTMLElement {
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+    }
+
+    connectedCallback() {
+        this.render();
+    }
+
+    set candidate(value) {
+        console.log({value});
+        this._candidate = value;
+        this.render();
+    }
+
+    render() {
+        const styles = `
+            <style>
+                .card { 
+                    border: 1px solid #e0e0e0; 
+                    border-radius: 8px;
+                    padding: 15px; 
+                    margin-bottom: 15px; 
+                    transition: all 0.3s; 
+                    background-color: white;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+                .card:hover {
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+                    transform: translateY(-2px);
+                }
+                h3 { 
+                    margin-top: 0; 
+                    color: #2c3e50;
+                    font-size: 1.1em;
+                }
+                p { 
+                    margin: 5px 0; 
+                    color: #34495e;
+                    font-size: 0.9em;
+                }
+                :host(.dragging) .card { 
+                    opacity: 0.5; 
+                    transform: scale(0.95);
+                    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+                }
+                :host(.appearing) .card {
+                    animation: appear 0.3s forwards;
+                }
+                @keyframes appear {
+                    from { opacity: 0; transform: scale(0.8); }
+                    to { opacity: 1; transform: scale(1); }
+                }
+            </style>
+        `;
+
+        console.log(this._candidate);
+
+        this.shadowRoot.innerHTML = `
+            ${styles}
+            <div class="card">
+                <h3>${this._candidate.name}</h3>
+                <p>ID: ${this._candidate.id}</p>
+                <p>Status: ${this._candidate.status}</p>
+                <p>Phone: ${this._candidate.phone}</p>
+            </div>
+        `;
+    }
+}
+
 class BoardComponent extends HTMLElement {
     constructor() {
         super();
         this._candidates = JSON.parse(this.getAttribute('data-candidates'));
+        console.log(this._candidates);
         console.log( JSON.parse(this.getAttribute('data-candidates')));
         this.onUpdateState = null;
         this.draggedElement = null;
@@ -383,7 +455,115 @@ class BoardComponent extends HTMLElement {
     }
 
     render() {
+        const styles = `
+            <style>
+                body {
+                    font-family: 'Arial', sans-serif;
+                    background-color: #f0f4f8;
+                    margin: 0;
+                    padding: 20px;
+                }
+
+                .board {
+                    display: flex;
+                    gap: 20px;
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    max-width: 2000px;
+                    overflow: hidden;
+                    overflow-x: hidden;
+                    overflow-x: scroll;
+                }
+
+                .column {
+                    flex: 1;
+                    background-color: #ffffff;
+                    border-radius: 8px;
+                    flex-direction: column;
+
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    padding: 20px;
+                    min-width: 250px;
+                }
+
+                h2 {
+                    text-align: center;
+                    color: #2c3e50;
+                    font-size: 1.2em;
+                    margin-top: 0;
+                    margin-bottom: 20px;
+                    padding-bottom: 10px;
+                    border-bottom: 2px solid #ecf0f1;
+                }
+
+                candidate-card {
+                    cursor: move;
+                    transition: transform 0.3s, box-shadow 0.3s, margin 0.3s, opacity 0.3s;
+                    display: block;
+                    margin-bottom: 15px;
+                }
+
+                .dragging {
+                    opacity: 0.5;
+                    background-color: #ecf0f1 !important;
+                }
+
+                .insertion-point {
+                    height: 3px;
+                    background-color: #3498db;
+                    transition: all 0.2s;
+                    border-radius: 3px;
+                }
+
+                .disappearing {
+                    opacity: 0;
+                    transform: scale(0.8);
+                    transition: opacity 0.3s, transform 0.3s;
+                }
+
+                .appearing {
+                    animation: appear 0.3s forwards;
+                }
+
+                @keyframes appear {
+                    from {
+                        opacity: 0;
+                        transform: scale(0.8);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: scale(1);
+                    }
+                }
+
+                .push-down {
+                    animation: pushDown 0.3s forwards;
+                }
+
+                @keyframes pushDown {
+                    from {
+                        transform: translateY(0);
+                    }
+                    to {
+                        transform: translateY(100%);
+                    }
+                }
+            </style>
+        `
         this.innerHTML = `
+        ${styles}
+            <style>
+                board-component {
+                    display: flex;
+                    height: 100%;
+                }
+
+                .board {
+                    width: 100%;
+                    display: flex;
+                    gap: 8px;
+                }
+            </style>
             <div class="board">
                 ${this.generateColumns()}
                 
@@ -526,75 +706,6 @@ class BoardComponent extends HTMLElement {
             this.insertionPoint.remove();
             this.insertionPoint = null;
         }
-    }
-}
-
-
-class CandidateCard extends HTMLElement {
-    constructor() {
-        super();
-        this.attachShadow({ mode: 'open' });
-    }
-
-    connectedCallback() {
-        this.render();
-    }
-
-    set candidate(value) {
-        this._candidate = value;
-        this.render();
-    }
-
-    render() {
-        const styles = `
-            <style>
-                .card { 
-                    border: 1px solid #e0e0e0; 
-                    border-radius: 8px;
-                    padding: 15px; 
-                    margin-bottom: 15px; 
-                    transition: all 0.3s; 
-                    background-color: white;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                }
-                .card:hover {
-                    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-                    transform: translateY(-2px);
-                }
-                h3 { 
-                    margin-top: 0; 
-                    color: #2c3e50;
-                    font-size: 1.1em;
-                }
-                p { 
-                    margin: 5px 0; 
-                    color: #34495e;
-                    font-size: 0.9em;
-                }
-                :host(.dragging) .card { 
-                    opacity: 0.5; 
-                    transform: scale(0.95);
-                    box-shadow: 0 0 10px rgba(0,0,0,0.2);
-                }
-                :host(.appearing) .card {
-                    animation: appear 0.3s forwards;
-                }
-                @keyframes appear {
-                    from { opacity: 0; transform: scale(0.8); }
-                    to { opacity: 1; transform: scale(1); }
-                }
-            </style>
-        `;
-
-        this.shadowRoot.innerHTML = `
-            ${styles}
-            <div class="card">
-                <h3>${this._candidate.name}</h3>
-                <p>ID: ${this._candidate.id}</p>
-                <p>Status: ${this._candidate.status}</p>
-                <p>Phone: ${this._candidate.phone}</p>
-            </div>
-        `;
     }
 }
 
