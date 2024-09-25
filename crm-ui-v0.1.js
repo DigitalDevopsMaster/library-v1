@@ -430,12 +430,10 @@ class BoardComponent extends HTMLElement {
     constructor() {
         super();
         this._candidates = JSON.parse(this.getAttribute('data-candidates'));
-        console.log(this._candidates);
-        console.log( JSON.parse(this.getAttribute('data-candidates')));
         this.onUpdateState = null;
         this.draggedElement = null;
         this.insertionPoint = null;
-        this.columns = []
+        this.columns = this.getAttribute('data-columns') ? JSON.parse(this.getAttribute('data-columns')) : [];
     }
 
     set candidates(value) {
@@ -574,11 +572,14 @@ class BoardComponent extends HTMLElement {
 
 
     generateColumns() {
-        this.columns = new Set(); // Usamos un Set para evitar duplicados
+        if (!this.columns.length) {
+            this.columns = new Set(); // Usamos un Set para evitar duplicados
+            this._candidates.forEach(candidate => {
+                this.columns.add(candidate.status);
+            });
+
+        }
       
-        this._candidates.forEach(candidate => {
-            this.columns.add(candidate.status);
-        });
       
         let columns = ``
         this.columns.forEach(column => {
@@ -708,6 +709,7 @@ class BoardComponent extends HTMLElement {
         }
     }
 }
+
 
 customElements.define('candidate-card', CandidateCard);
 
