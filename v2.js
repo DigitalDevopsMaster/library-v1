@@ -276,7 +276,7 @@ async function renderRoute() {
               width: 100%;
             }
 
-            layout-footer, layout-header {
+            layout-content {
               padding-top: 0;  
             }
             layout-footer, layout-header {
@@ -288,7 +288,7 @@ async function renderRoute() {
           `
             <style>
               layout-content {
-                padding-top: 0;
+                padding-top: ${currentPage.config.hideLayout ? "0" : "48px" };
               }
               layout-footer, layout-header {
                 display: ${currentPage.config.hideLayout ? "none" : "flex" };
@@ -694,7 +694,7 @@ class AppLayout extends HTMLElement {
           overflow: scroll;   
         }
         layout-header {
-          display: flex;
+          display: none;
           justify-content: center;
           background: ${config.palette.primaryColor};
           border-bottom: 1px solid ${config.palette.accentColor};
@@ -819,7 +819,6 @@ class AppLayout extends HTMLElement {
           flex: 1;
           flex-direction: column;
           display: flex;
-          padding-top: 48px;
         }
         layout-content.scrolled{
           padding-top: ${this.topbarHeight}px;
