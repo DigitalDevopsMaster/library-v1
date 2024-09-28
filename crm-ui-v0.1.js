@@ -728,7 +728,6 @@ class RegisterPage extends HTMLElement {
         const endpoints = this.getAttribute('data-endpoints');
         const metaTag = document.querySelector('meta[name="csrf-token"]');
         const csrfToken = metaTag ? metaTag.getAttribute('content') : 'No CSRF token found';
-        console.log(csrfToken);
         if (endpoints) {
             try {
                 this.updateState({ endpoints: JSON.parse(endpoints) });
