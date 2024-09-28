@@ -366,6 +366,8 @@ class WebLayout00 extends HTMLElement {
     const currentPage = config.pages.find(({ config: pageConfig }) => {
       return pageConfig.route === pathname
     })
+
+    console.log({pathname, config});
     const resetCSS = `
       html, body, div, span, applet, object, iframe,
       h1, h2, h3, h4, h5, h6, p, blockquote, pre,
