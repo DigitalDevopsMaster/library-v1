@@ -283,6 +283,12 @@ async function renderRoute(config) {
               display: ${currentPage.config.hideLayout ? "none" : "flex" };
               
             }
+            layout-header {
+              background: ${currentPage.config.hideLayout ? "transparent" : config.palette.primaryColor};
+            }
+
+
+
           </style>
           ` : 
           `
@@ -292,8 +298,12 @@ async function renderRoute(config) {
               }
               layout-footer, layout-header {
                 display: ${currentPage.config.hideLayout ? "none" : "flex" };
-                
               }
+                
+              layout-header {
+                background: ${currentPage.config.hideLayout ? "transparent" : config.palette.primaryColor};
+              }
+
             </style>
 
           `
@@ -443,7 +453,6 @@ class WebLayout00 extends HTMLElement {
         layout-header {
           display: flex;
           justify-content: center;
-          background: ${config.palette.primaryColor};
           position: fixed;
           top: 0;
           left: 0;
