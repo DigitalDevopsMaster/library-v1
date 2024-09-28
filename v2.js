@@ -284,13 +284,12 @@ async function renderRoute(config) {
               display: ${currentPage.config.hideLayout ? "none" : "flex" };
               
             }
-            layout-header {
-              background: ${config.palette.primaryColor};
-            }
-
-
+              
             layout-header, layout-footer {
               opacity: ${currentPage.config.hideLayout ? "0" : "1"};
+            }
+            header-layout {
+              background: ${config.palette.primaryColor};
             }
 
 
@@ -310,9 +309,8 @@ async function renderRoute(config) {
               layout-header, layout-footer {
                 opacity: ${currentPage.config.hideLayout ? "0" : "1"};
               }
-
-              layout-header {
-                background: ${config.palette.primaryColor};
+              header-layout {
+              background: ${config.palette.primaryColor};
               }
 
             </style>
