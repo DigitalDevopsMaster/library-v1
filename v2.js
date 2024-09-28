@@ -367,17 +367,17 @@ class WebLayout00 extends HTMLElement {
     let currentPage = {config: {}}
     
     
-    if (!isHome) {
-      const found = config.pages.find(({ config: pageConfig }) => {
-        console.log(pageConfig.route, pathname);
-        return pageConfig.route === pathname
-      }) 
-      if(found) {
-        currentPage = found
-      }
+    const found = config.pages.find(({ config: pageConfig }) => {
+      console.log(pageConfig.route, pathname);
+      return pageConfig.route === pathname
+    }) 
+    if(found) {
+      currentPage = found
     }
+    if (!isHome) {
+  }
 
-    console.log({pathname, config , currentPage, pages: config.pages})
+    console.log({pathname, config , currentPage}, config.pages)
     getWidthOnResize(document.body, this.onResize)
     const resetCSS = `
       html, body, div, span, applet, object, iframe,
