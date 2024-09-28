@@ -21,7 +21,9 @@ jobs:
             rm -rf library-v1
             git clone git@github.com:DigitalDevopsMaster/library-v1.git
 
-            avascript-obfuscator ./crm-ui-v0.1.js --output ./crm-ui-v0.1-obfuscated.js
+            cd library-v1
+
+            javascript-obfuscator ./crm-ui-v0.1.js --output ./crm-ui-v0.1-obfuscated.js
             javascript-obfuscator ./v2.js --output ./v2-obfuscated.js
 
 
