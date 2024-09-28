@@ -360,24 +360,17 @@ class PageNotAuthorized extends HTMLElement {
 }
 
 class WebLayout00 extends HTMLElement {
-  connectedCallback() {
-    const pathname = window.location.pathname
-    const isHome = pathname === "/";
-
-    let currentPage = {config: {}}
-    
-    
-    const found = config.pages.find(({ config: pageConfig }) => {
+  constructor() {
+    super()
+    this.isHome = window.location.pathname === "/";
+    this.currentPage = config.pages.find(({ config: pageConfig }) => {
       console.log(pageConfig.route, pathname);
       return pageConfig.route === pathname
     }) 
-    if(found) {
-      currentPage = found
-    }
-    if (!isHome) {
-  }
 
-    console.log({pathname, config , currentPage}, config.pages)
+  }
+  connectedCallback() {
+    console.log({currentPage: this.currentPage})
     getWidthOnResize(document.body, this.onResize)
     const resetCSS = `
       html, body, div, span, applet, object, iframe,
