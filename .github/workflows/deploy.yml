@@ -26,6 +26,17 @@ jobs:
           javascript-obfuscator ./crm-ui-v0.1.js --output ./crm-ui-v0.1-obfuscated.js
           javascript-obfuscator ./v2.js --output ./v2-obfuscated.js
 
+      - name: List generated files
+        run: |
+          ls -l  # Lista los archivos en el directorio actual
+
+      - name: Show obfuscated file content
+        run: |
+          echo "Obfuscated crm-ui-v0.1.js:"
+          cat ./crm-ui-v0.1-obfuscated.js
+          echo "Obfuscated v2.js:"
+          cat ./v2-obfuscated.js
+
       - name: Deploy to DigitalOcean Droplet
         uses: appleboy/ssh-action@master
         with:
