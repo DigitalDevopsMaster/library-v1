@@ -277,13 +277,14 @@ async function renderRoute(config) {
             }
 
             layout-content {
+              opacity: 1;
               padding-top: ${currentPage.config.hideLayout ? "0" : "48px" };
             }
             layout-footer, layout-header {
               display: ${currentPage.config.hideLayout ? "none" : "flex" };
               
             }
-            layout-header, layout-footer, layout-content {
+            layout-header, layout-footer {
               opacity: ${currentPage.config.hideLayout ? "0" : "1"};
             }
 
@@ -294,13 +295,14 @@ async function renderRoute(config) {
           `
             <style>
               layout-content {
+                opacity: 1;
                 padding-top: ${currentPage.config.hideLayout ? "0" : "48px" };
               }
               layout-footer, layout-header {
                 display: ${currentPage.config.hideLayout ? "none" : "flex" };
               }
                 
-              layout-header, layout-footer, layout-content {
+              layout-header, layout-footer {
                 opacity: ${currentPage.config.hideLayout ? "0" : "1"};
               }
 
