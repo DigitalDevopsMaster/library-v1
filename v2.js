@@ -841,7 +841,7 @@ class AppLayout extends HTMLElement {
           transition: ease-in-out .3s all; 
           flex: 1;
           flex-direction: column;
-          display: flex;
+          display: none;
         }
         layout-content.scrolled{
           padding-top: ${this.topbarHeight}px;
