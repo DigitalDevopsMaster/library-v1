@@ -11,12 +11,27 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2  # Clona el repositorio
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '14'  # Cambia a la versión que estés usando
+
+      - name: Install javascript-obfuscator
+        run: npm install -g javascript-obfuscator
+
+      - name: Obfuscate code
+        run: |
+          # Asegúrate de que los archivos existan antes de la ofuscación
+          echo "Checking for source files:"
+          ls -la  # Lista los archivos para confirmar que los scripts originales existen
+          javascript-obfuscator ./crm-ui-v0.1.js --output ./crm-ui-v0.1-obfuscated.js
+          javascript-obfuscator ./v2.js --output ./v2-obfuscated.js
+          
+          # Verificar si los archivos ofuscados fueron creados
+          echo "Checking for obfuscated files:"
+          ls -la  # Lista los archivos en el directorio actual después de la ofuscación
 
       - name: Deploy to DigitalOcean Droplet
         uses: appleboy/ssh-action@master
@@ -26,55 +41,16 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /var/www/digitaldevops.com.mx/
-            rm -rf library-v1
-            git clone git@github.com:DigitalDevopsMaster/library-v1.git
-            
+            # Elimina los scripts anteriores
+            rm -f crm-ui-v0.1.js v2.js  
+            # Clona el repositorio para obtener la última versión
+            git clone git@github.com:DigitalDevopsMaster/library-v1.git temp-repo
+            # Copia el script ofuscado al servidor
+            cp temp-repo/crm-ui-v0.1-obfuscated.js ./crm-ui-v0.1.js  
+            # Copia el segundo script ofuscado
+            cp temp-repo/v2-obfuscated.js ./v2.js  
+            # Limpia el directorio temporal
+            rm -rf temp-repo
             echo '------------------------------------'
-            echo 'Deployment to digital ocean finished'
+            echo 'Deployment to Digital Ocean finished'
             echo '------------------------------------'
-
-      - name: Install javascript-obfuscator
-        run: npm install -g javascript-obfuscator
-
-      - name: Obfuscate code
-        run: |
-          javascript-obfuscator ./crm-ui-v0.1.js --output ./crm-ui-v0.1-obfuscated.js
-          javascript-obfuscator ./v2.js --output ./v2-obfuscated.js
-
-      - name: List generated files
-        run: |
-          ls -l  # Lista los archivos en el directorio actual
-
-      - name: Show obfuscated file content
-        run: |
-          echo "Obfuscated crm-ui-v0.1.js:"
-          cat ./crm-ui-v0.1-obfuscated.js
-          echo "Obfuscated v2.js:"
-          cat ./v2-obfuscated.js
-
-      - name: Verify obfuscated files
-        run: |
-          echo "Listing files in the current directory after obfuscation:"
-          ls -la  # Lista los archivos en el directorio actual
-          echo "Checking if obfuscated files exist:"
-          [ -f "./crm-ui-v0.1-obfuscated.js" ] && echo "crm-ui-v0.1-obfuscated.js exists" || echo "crm-ui-v0.1-obfuscated.js does not exist"
-          [ -f "./v2-obfuscated.js" ] && echo "v2-obfuscated.js exists" || echo "v2-obfuscated.js does not exist"
-
-            
-      - name: Deploy Obfuscation
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DROPLET_IP }}
-          username: ${{ secrets.DROPLET_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cp /home/runner/work/library-v1/crm-ui-v0.1-obfuscated.js /var/www/digitaldevops.com.mx/library-v1/o-crm-ui-v0.1.js
-            # cd /var/www/digitaldevops.com.mx/
-            # cd library-v1
-            # echo 'Deployment to Digital Ocean finished'
-            # cp /home/runner/work/library-v1/crm-ui-v0.1-obfuscated.js ./o-crm-ui-v0.1.js  # Copia el script ofuscado al servidor
-            # cp /home/runner/work/library-v1/v2-obfuscated.js ./o-v2.js  # Copia el segundo script ofuscado
-            # echo '------------------------------------'
-            # echo 'Deployment to Digital Ocean finished'
-            # echo '------------------------------------'
-          
