@@ -277,6 +277,9 @@ async function renderRoute() {
             }
 
             layout-footer, layout-header {
+              padding-top: 0;  
+            }
+            layout-footer, layout-header {
               display: ${currentPage.config.hideLayout ? "none" : "flex" };
               
             }
@@ -284,6 +287,9 @@ async function renderRoute() {
           ` : 
           `
             <style>
+              layout-content {
+                padding-top: 0;
+              }
               layout-footer, layout-header {
                 display: ${currentPage.config.hideLayout ? "none" : "flex" };
                 
