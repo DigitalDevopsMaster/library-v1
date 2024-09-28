@@ -1,6 +1,5 @@
 name: Deploy to DigitalOcean Droplet
-
-on:
+'on':
   push:
     branches:
       - main
@@ -8,45 +7,34 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Check out code
-        uses: actions/checkout@v2  # Clona el repositorio
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'  # Cambia a la versión que estés usando
 
       - name: Install javascript-obfuscator
         run: npm install -g javascript-obfuscator
 
-      - name: Obfuscate code
-        run: |
-          echo "Checking for source files:"
-          ls -la  # Lista los archivos para confirmar que los scripts originales existen
-          javascript-obfuscator ./crm-ui-v0.1.js --output ./crm-ui-v0.1-obfuscated.js
-          javascript-obfuscator ./v2.js --output ./v2-obfuscated.js
-          
-          echo "Checking for obfuscated files:"
-          ls -la  # Lista los archivos en el directorio actual después de la ofuscación
-
+      
+      
       - name: Deploy to DigitalOcean Droplet
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.DROPLET_IP }}
-          username: ${{ secrets.DROPLET_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{secrets.DROPLET_IP}}
+          username: ${{secrets.DROPLET_USERNAME}}
+          key: ${{secrets.SSH_PRIVATE_KEY}}
           script: |
             cd /var/www/digitaldevops.com.mx/
-            rm -f crm-ui-v0.1.js v2.js  # Elimina los scripts anteriores
-            echo "Cloning repository..."
-            git clone git@github.com:DigitalDevopsMaster/library-v1.git temp-repo
-            echo "Copying obfuscated scripts..."
-            cp /home/runner/work/library-v1/crm-ui-v0.1-obfuscated.js ./crm-ui-v0.1.js  # Copia el script ofuscado al servidor
-            cp /home/runner/work/library-v1/v2-obfuscated.js ./v2.js  # Copia el segundo script ofuscado
-            echo "Cleaning up..."
-            rm -rf temp-repo  # Limpia el directorio temporal
+            rm -rf library-v1
+            git clone git@github.com:DigitalDevopsMaster/library-v1.git
+
+            avascript-obfuscator ./crm-ui-v0.1.js --output ./crm-ui-v0.1-obfuscated.js
+            javascript-obfuscator ./v2.js --output ./v2-obfuscated.js
+
+
+
             echo '------------------------------------'
-            echo 'Deployment to Digital Ocean finished'
+            echo 'Deployment to digital ocean finished'
             echo '------------------------------------'
+
+
+
+
+    
