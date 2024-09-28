@@ -373,7 +373,7 @@ class WebLayout00 extends HTMLElement {
       }) 
     }
 
-    console.log({pathname, config})
+    console.log({pathname, config , currentPage})
     getWidthOnResize(document.body, this.onResize)
     const resetCSS = `
       html, body, div, span, applet, object, iframe,
