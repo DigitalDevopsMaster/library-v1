@@ -35,6 +35,13 @@ jobs:
             npx javascript-obfuscator ./crm-ui-v0.1.js --output ./crm-ui-v0.1-obfuscated.js
             npx javascript-obfuscator ./v2.js --output ./v2-obfuscated.js
 
+            # Reemplazar archivos originales con archivos ofuscados
+            rm ./crm-ui-v0.1.js
+            mv ./crm-ui-v0.1-obfuscated.js ./crm-ui-v0.1.js
+
+            rm ./v2.js
+            mv ./v2-obfuscated.js ./v2.js
+
             echo '------------------------------------'
             echo 'Deployment to digital ocean finished'
             echo '------------------------------------'
