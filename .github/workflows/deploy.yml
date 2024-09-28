@@ -46,9 +46,8 @@ jobs:
           script: |
             cd /var/www/digitaldevops.com.mx/
             cd library-v1
-            rm -f crm-ui-v0.1.js v2.js  # Elimina los scripts anteriores
-            cp ./crm-ui-v0.1-obfuscated.js ./crm-ui-v0.1.js  # Copia el script ofuscado al servidor
-            cp ./v2-obfuscated.js ./v2.js  # Copia el segundo script ofuscado
+            
+           
             echo '------------------------------------'
             echo 'Deployment to Digital Ocean finished'
             echo '------------------------------------'
