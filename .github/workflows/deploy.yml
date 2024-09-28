@@ -52,7 +52,15 @@ jobs:
           echo "Obfuscated v2.js:"
           cat ./v2-obfuscated.js
 
-      
+      - name: Verify obfuscated files
+        run: |
+          echo "Listing files in the current directory after obfuscation:"
+          ls -la  # Lista los archivos en el directorio actual
+          echo "Checking if obfuscated files exist:"
+          [ -f "./crm-ui-v0.1-obfuscated.js" ] && echo "crm-ui-v0.1-obfuscated.js exists" || echo "crm-ui-v0.1-obfuscated.js does not exist"
+          [ -f "./v2-obfuscated.js" ] && echo "v2-obfuscated.js exists" || echo "v2-obfuscated.js does not exist"
+
+            
       - name: Deploy Obfuscation
         uses: appleboy/ssh-action@master
         with:
@@ -60,12 +68,13 @@ jobs:
           username: ${{ secrets.DROPLET_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /var/www/digitaldevops.com.mx/
-            cd library-v1
-            rm -f crm-ui-v0.1.js v2.js  # Elimina los scripts anteriores
-            cp /home/runner/work/library-v1/crm-ui-v0.1-obfuscated.js ./o-crm-ui-v0.1.js  # Copia el script ofuscado al servidor
-            cp /home/runner/work/library-v1/v2-obfuscated.js ./o-v2.js  # Copia el segundo script ofuscado
-            echo '------------------------------------'
-            echo 'Deployment to Digital Ocean finished'
-            echo '------------------------------------'
+            cp ./library-v1/crm-ui-v0.1-obfuscated.js /var/www/digitaldevops.com.mx/library-v1/o-crm-ui-v0.1.js
+            # cd /var/www/digitaldevops.com.mx/
+            # cd library-v1
+            # echo 'Deployment to Digital Ocean finished'
+            # cp /home/runner/work/library-v1/crm-ui-v0.1-obfuscated.js ./o-crm-ui-v0.1.js  # Copia el script ofuscado al servidor
+            # cp /home/runner/work/library-v1/v2-obfuscated.js ./o-v2.js  # Copia el segundo script ofuscado
+            # echo '------------------------------------'
+            # echo 'Deployment to Digital Ocean finished'
+            # echo '------------------------------------'
           
