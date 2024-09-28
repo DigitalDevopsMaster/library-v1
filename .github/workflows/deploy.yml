@@ -18,6 +18,21 @@ jobs:
         with:
           node-version: '14'  # Cambia a la versión que estés usando
 
+      - name: Deploy to DigitalOcean Droplet
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: ${{ secrets.DROPLET_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /var/www/digitaldevops.com.mx/
+            rm -rf library-v1
+            git clone git@github.com:DigitalDevopsMaster/library-v1.git
+            
+            echo '------------------------------------'
+            echo 'Deployment to digital ocean finished'
+            echo '------------------------------------'
+
       - name: Install javascript-obfuscator
         run: npm install -g javascript-obfuscator
 
@@ -37,17 +52,6 @@ jobs:
           echo "Obfuscated v2.js:"
           cat ./v2-obfuscated.js
 
-      - name: Deploy to DigitalOcean Droplet
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DROPLET_IP }}
-          username: ${{ secrets.DROPLET_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd /var/www/digitaldevops.com.mx/
-            cd library-v1
-            
-           
-            echo '------------------------------------'
-            echo 'Deployment to Digital Ocean finished'
-            echo '------------------------------------'
+      
+
+          
