@@ -565,7 +565,6 @@ class WebLayout00 extends HTMLElement {
           flex: 1;
           flex-direction: column;
           display: flex;
-          padding-top: 48px;
         }
         layout-content.scrolled{
           padding-top: ${this.topbarHeight}px;
