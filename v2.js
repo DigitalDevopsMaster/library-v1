@@ -278,6 +278,7 @@ async function renderRoute(config) {
 
             layout-content {
               display: flex;
+              opacity: 1;
               padding-top: ${currentPage.config.hideLayout ? "0" : "48px" };
             }
             layout-footer, layout-header {
@@ -300,6 +301,7 @@ async function renderRoute(config) {
             <style>
               layout-content {
                 display: flex;
+                opacity: 1;
                 padding-top: ${currentPage.config.hideLayout ? "0" : "48px" };
               }
               layout-footer, layout-header {
