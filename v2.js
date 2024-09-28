@@ -214,7 +214,7 @@ async function checkSession(token) {
     });
 
     if (!response.ok) {
-      console.log('No se pudo verificar la sesión');
+      throw new Error('No se pudo verificar la sesión');
     }
     const data = await response.json();
     return true;
@@ -222,7 +222,7 @@ async function checkSession(token) {
     // Por ejemplo, actualizar el UI con información del usuario autenticado
 
   } catch (error) {
-    console.log('Error al verificar sesión:', error);
+    console.error('Error al verificar sesión:', error);
     // Manejo de errores
     return null;
   }
@@ -361,7 +361,6 @@ class PageNotAuthorized extends HTMLElement {
 
 class WebLayout00 extends HTMLElement {
   connectedCallback() {
-    getWidthOnResize(document.body, this.onResize)
     const pathname = window.location.pathname
     const isHome = pathname === "/";
 
@@ -369,7 +368,8 @@ class WebLayout00 extends HTMLElement {
       return pageConfig.route === pathname
     }) : { config: {}}
 
-    console.log({pathname, config});
+    console.log({pathname, config})
+    getWidthOnResize(document.body, this.onResize)
     const resetCSS = `
       html, body, div, span, applet, object, iframe,
       h1, h2, h3, h4, h5, h6, p, blockquote, pre,
@@ -412,6 +412,7 @@ class WebLayout00 extends HTMLElement {
       }
     `
     this.topbarHeight = 48
+
     this.innerHTML = `
       <style>
         ${resetCSS}
@@ -426,10 +427,7 @@ class WebLayout00 extends HTMLElement {
           overflow: scroll;   
         }
         layout-header {
-          display: ${currentPage.config.hideLayout
-            ? "none"
-            : "flex"
-          };
+          display: ${currentPage.config.hideLayout ? "none" : "flex" };
           justify-content: center;
           background: ${config.palette.primaryColor};
           position: fixed;
@@ -563,27 +561,18 @@ class WebLayout00 extends HTMLElement {
         }
         .header-full-screen {
         }
-        layout-footer {
-          display: ${currentPage.config.hideLayout
-            ? "none;"
-            : "flex;"
-          } 
-        }
       </style>
-      
-       <layout-header>
-          <header>
-            <div class="logo-container">
-              <img src="${config.contactInfo.logo}" >
-            </div>
-            <nav></nav>
-            <div class="overlay"></div>
-          </header>
-        </layout-header>
+      <layout-header>
+        <header>
+          <div class="logo-container">
+            <img src="${config.contactInfo.logo}" >
+          </div>
+          <nav></nav>
+          <div class="overlay"></div>
+        </header>
+      </layout-header>
       <layout-content></layout-content>
       <layout-footer></layout-footer>
-
-      
     `;
     document.querySelector('.logo-container').onclick = () => {
       navigate("/")
@@ -875,6 +864,7 @@ class AppLayout extends HTMLElement {
     document.querySelector(`${currentPage?.name}-page`)?.setAttribute('scroll-position', e.scrollTop)
   }
 }
+
 
 class BurguerMenuButton extends HTMLElement {
   constructor() {
