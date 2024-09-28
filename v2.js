@@ -280,9 +280,17 @@ async function renderRoute() {
               display: ${currentPage.config.hideLayout ? "none" : "flex" };
               
             }
-  
           </style>
-          ` : ''}
+          ` : 
+          `
+            layout-footer, layout-header {
+              display: ${currentPage.config.hideLayout ? "none" : "flex" };
+              
+            }
+          `
+
+        
+        }
           
         ${currentPage.component.outerHTML}
         `;
