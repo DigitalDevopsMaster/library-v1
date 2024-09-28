@@ -369,6 +369,7 @@ class WebLayout00 extends HTMLElement {
     
     if (!isHome) {
       const found = config.pages.find(({ config: pageConfig }) => {
+        console.log(pageConfig.route, pathname);
         return pageConfig.route === pathname
       }) 
       if(found) {
