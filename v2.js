@@ -222,7 +222,7 @@ async function checkSession(token) {
     // Por ejemplo, actualizar el UI con información del usuario autenticado
 
   } catch (error) {
-    console.error('Error al verificar sesión:', error);
+    console.log('Error al verificar sesión:', error);
     // Manejo de errores
     return null;
   }
@@ -363,9 +363,11 @@ class WebLayout00 extends HTMLElement {
   connectedCallback() {
     getWidthOnResize(document.body, this.onResize)
     const pathname = window.location.pathname
-    const currentPage = config.pages.find(({ config: pageConfig }) => {
+    const isHome = pathname === "/";
+
+    const currentPage = !isHome ? config.pages.find(({ config: pageConfig }) => {
       return pageConfig.route === pathname
-    })
+    }) : {}
 
     console.log({pathname, config});
     const resetCSS = `
