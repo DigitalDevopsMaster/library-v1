@@ -53,5 +53,19 @@ jobs:
           cat ./v2-obfuscated.js
 
       
-
+      - name: Deploy Obfuscation
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: ${{ secrets.DROPLET_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /var/www/digitaldevops.com.mx/
+            cd library-v1
+            rm -f crm-ui-v0.1.js v2.js  # Elimina los scripts anteriores
+            cp /home/runner/work/library-v1/crm-ui-v0.1-obfuscated.js ./o-crm-ui-v0.1.js  # Copia el script ofuscado al servidor
+            cp /home/runner/work/library-v1/v2-obfuscated.js ./o-v2.js  # Copia el segundo script ofuscado
+            echo '------------------------------------'
+            echo 'Deployment to Digital Ocean finished'
+            echo '------------------------------------'
           
