@@ -367,7 +367,7 @@ class WebLayout00 extends HTMLElement {
     let currentPage = {config: {}}
     
     
-    if (isHome) {
+    if (!isHome) {
       currentPage = config.pages.find(({ config: pageConfig }) => {
         return pageConfig.route === pathname
       }) 
