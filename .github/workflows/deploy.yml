@@ -68,7 +68,7 @@ jobs:
           username: ${{ secrets.DROPLET_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cp ./library-v1/crm-ui-v0.1-obfuscated.js /var/www/digitaldevops.com.mx/library-v1/o-crm-ui-v0.1.js
+            cp /home/runner/work/library-v1/crm-ui-v0.1-obfuscated.js /var/www/digitaldevops.com.mx/library-v1/o-crm-ui-v0.1.js
             # cd /var/www/digitaldevops.com.mx/
             # cd library-v1
             # echo 'Deployment to Digital Ocean finished'
