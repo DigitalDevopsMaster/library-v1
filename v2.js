@@ -367,7 +367,7 @@ class WebLayout00 extends HTMLElement {
 
     const currentPage = !isHome ? config.pages.find(({ config: pageConfig }) => {
       return pageConfig.route === pathname
-    }) : {}
+    }) : { config: {}}
 
     console.log({pathname, config});
     const resetCSS = `
@@ -426,7 +426,10 @@ class WebLayout00 extends HTMLElement {
           overflow: scroll;   
         }
         layout-header {
-          display: flex;
+          display: ${currentPage.config.hideLayout
+            ? "none"
+            : "flex"
+          };
           justify-content: center;
           background: ${config.palette.primaryColor};
           position: fixed;
@@ -560,27 +563,25 @@ class WebLayout00 extends HTMLElement {
         }
         .header-full-screen {
         }
+        layout-footer {
+          display: ${currentPage.config.hideLayout
+            ? "none;"
+            : "flex;"
+          } 
+        }
       </style>
       
-      ${
-        currentPage.config.hideLayout
-        ? ""
-        : `<layout-header>
-            <header>
-              <div class="logo-container">
-                <img src="${config.contactInfo.logo}" >
-              </div>
-              <nav></nav>
-              <div class="overlay"></div>
-            </header>
-          </layout-header>`
-      }
+       <layout-header>
+          <header>
+            <div class="logo-container">
+              <img src="${config.contactInfo.logo}" >
+            </div>
+            <nav></nav>
+            <div class="overlay"></div>
+          </header>
+        </layout-header>
       <layout-content></layout-content>
-      ${
-        currentPage.config.hideLayout
-        ? ""
-        : "<layout-footer></layout-footer>"
-      }
+      <layout-footer></layout-footer>
 
       
     `;
