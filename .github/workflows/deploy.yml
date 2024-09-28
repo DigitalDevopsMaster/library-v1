@@ -8,7 +8,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-
       - name: Deploy to DigitalOcean Droplet
         uses: appleboy/ssh-action@master
         with:
@@ -16,23 +15,26 @@ jobs:
           username: ${{secrets.DROPLET_USERNAME}}
           key: ${{secrets.SSH_PRIVATE_KEY}}
           script: |
-            npm install -g javascript-obfuscator
+            # Actualizar Node.js y npm si es necesario (descomentar si no está instalado nvm)
+            # curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
+            # source ~/.bashrc
+            # nvm install 16
+            # nvm use 16
+
+            # Cambiar al directorio del proyecto
             cd /var/www/digitaldevops.com.mx/
             rm -rf library-v1
             git clone git@github.com:DigitalDevopsMaster/library-v1.git
 
             cd library-v1
 
-            javascript-obfuscator ./crm-ui-v0.1.js --output ./crm-ui-v0.1-obfuscated.js
-            javascript-obfuscator ./v2.js --output ./v2-obfuscated.js
+            # Instalar javascript-obfuscator localmente
+            npm install javascript-obfuscator
 
-
+            # Ejecutar el obfuscador
+            npx javascript-obfuscator ./crm-ui-v0.1.js --output ./crm-ui-v0.1-obfuscated.js
+            npx javascript-obfuscator ./v2.js --output ./v2-obfuscated.js
 
             echo '------------------------------------'
             echo 'Deployment to digital ocean finished'
             echo '------------------------------------'
-
-
-
-
-    
