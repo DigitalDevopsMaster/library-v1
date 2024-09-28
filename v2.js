@@ -227,7 +227,7 @@ async function checkSession(token) {
     return null;
   }
 };
-async function renderRoute(config) {
+async function renderRoute() {
   const topbarHeight = 48
   const pathname = window.location.pathname
   const isAuthenticated = await checkSession(localStorage.getItem('token'));
