@@ -180,7 +180,7 @@ export const loadFrontend = async (cfg) => {
   const rootScript = document.createElement('script')
   rootScript.innerHTML = scriptsInnerHtml
   document.head.append(rootScript)
-  renderRoute()
+  renderRoute(config)
 }
 
 async function getJScontent(nombreArchivo) {
@@ -227,7 +227,7 @@ async function checkSession(token) {
     return null;
   }
 };
-async function renderRoute() {
+async function renderRoute(config) {
   const topbarHeight = 48
   const pathname = window.location.pathname
   const isAuthenticated = await checkSession(localStorage.getItem('token'));
@@ -277,7 +277,7 @@ async function renderRoute() {
             }
 
             layout-content {
-              padding-top: 0;  
+              padding-top: ${currentPage.config.hideLayout ? "0" : "48px" };
             }
             layout-footer, layout-header {
               display: ${currentPage.config.hideLayout ? "none" : "flex" };
@@ -815,6 +815,7 @@ class AppLayout extends HTMLElement {
           height: 100%;
         }
         layout-content {
+          padding-top: 0;
           transition: ease-in-out .3s all; 
           flex: 1;
           flex-direction: column;
