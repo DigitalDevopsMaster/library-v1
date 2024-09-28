@@ -710,6 +710,222 @@ class BoardComponent extends HTMLElement {
     }
 }
 
+class RegisterPage extends HTMLElement {
+    constructor() {
+        super();
+        this._state = {
+            endpoints: {
+                register: null,
+                forgotPassword: null,
+                login: null,
+            },
+            csrfToken: null,
+        };
+        this.attachShadow({ mode: 'open' });
+    }
+  
+    connectedCallback() {
+        const endpoints = this.getAttribute('data-endpoints');
+        const metaTag = document.querySelector('meta[name="csrf-token"]');
+        const csrfToken = metaTag ? metaTag.getAttribute('content') : 'No CSRF token found';
+        console.log(csrfToken);
+        if (endpoints) {
+            try {
+                this.updateState({ endpoints: JSON.parse(endpoints) });
+            } catch (e) {
+                console.error('Error parsing endpoints:', e);
+            }
+        }
+  
+        if (csrfToken) {
+            this.updateState({ csrfToken });
+        }
+  
+        this.render();
+    }
+  
+    updateState(newState) {
+        this._state = { ...this._state, ...newState };
+        this.render();
+    }
+  
+    serializeData(data) {
+      const params = new URLSearchParams();
+      for (const [key, value] of Object.entries(data)) {
+        if (Array.isArray(value)) {
+          value.forEach(item => params.append(key, item));
+        } else {
+          params.append(key, value);
+        }
+      }
+      return `${params.toString()}`;
+    }
+  
+    handleRegister(event) {
+        event.preventDefault();
+        const formData = new FormData(this.shadowRoot.querySelector('form'));
+        
+        const data = {
+          "user:name": [formData.get('user_name')],
+          "user:email": [formData.get('user_email')],
+          "user:password": [formData.get('user_password')],
+          "user:password_confirmation": [formData.get('user_password_confirmation')],
+          "user:remember_me": [formData.get('user_remember_me')],
+          "_csrf": [formData.get('_csrf')],
+        };
+        const registerEndpoint = this._state.endpoints.register;
+  
+        if (registerEndpoint) {
+            fetch(registerEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: this.serializeData(data),
+            })
+            .then(response => {
+              if (response.status === 200) {
+                  window.location.href = '/';
+                } else {
+                  return this.shadowRoot.querySelector('.error-message').textContent = 'Registration failed'; // Handle unsuccessful registration response
+              }
+          })
+            .catch(error => console.error('Registration error:', error));
+        } else {
+            console.error('Registration endpoint is not set');
+        }
+    }
+  
+    render() {
+        console.log('Attributes of', this.tagName.toLowerCase(), ':');
+        Array.from(this.attributes).forEach(attr => {
+            console.log(`${attr.name}: ${attr.value}`);
+        });
+  
+        const styles = `
+            <style>
+                :host {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    background-color: #f0f0f0;
+                    font-family: Arial, sans-serif;
+                }
+                .register-container {
+                    background: white;
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                    width: 100%;
+                    max-width: 400px;
+                }
+                h2 {
+                    margin-bottom: 20px;
+                    font-size: 24px;
+                    text-align: center;
+                }
+                form {
+                    display: flex;
+                    flex-direction: column;
+                }
+                input:not([type="checkbox"]), button {
+                    margin-bottom: 15px;
+                    padding: 10px;
+                    font-size: 16px;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                }
+                .checkbox-container {
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 15px;
+                }
+                .checkbox-container input {
+                    margin-right: 10px;
+                }
+                button {
+                    background-color: #007BFF;
+                    color: white;
+                    border: none;
+                    cursor: pointer;
+                }
+                button:hover {
+                    background-color: #0056b3;
+                }
+                .social-buttons {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 15px;
+                }
+                .social-buttons button {
+                    flex: 1;
+                    margin: 0 5px;
+                }
+                .facebook {
+                    background-color: #3b5998;
+                }
+                .twitter {
+                    background-color: #1da1f2;
+                }
+                .links {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-top: 10px;
+                }
+                .links a {
+                    color: #007BFF;
+                    text-decoration: none;
+                    font-size: 14px;
+                }
+                .links a:hover {
+                    text-decoration: underline;
+                }
+                .error-message {
+                    color: red;
+                    text-align: center;
+                    margin-bottom: 15px;
+                }
+            </style>
+        `;
+  
+        const csrfInput = this._state.csrfToken 
+            ? `<input type="hidden" name="_csrf" value="${this._state.csrfToken}">`
+            : '';
+  
+        this.shadowRoot.innerHTML = `
+            ${styles}
+            <div class="register-container">
+                <h2>Register</h2>
+                <form>
+                    <div class="error-message"></div>
+                    ${csrfInput}
+                    <input type="text" name="user_name" placeholder="Name" required autofocus>
+                    <input type="email" name="user_email" placeholder="Email" required>
+                    <input type="password" name="user_password" placeholder="Password" required>
+                    <input type="password" name="user_password_confirmation" placeholder="Confirm Password" required>
+                    <div class="checkbox-container">
+                        <input type="checkbox" name="user_remember_me" id="rememberMe">
+                        <label for="rememberMe">Remember me</label>
+                    </div>
+                    <button type="submit">Let me in</button>
+                    <div class="social-buttons">
+                        <button type="button" class="facebook">Continue with Facebook</button>
+                        <button type="button" class="twitter">Continue with Twitter</button>
+                    </div>
+                </form>
+                <div class="links">
+                    <a href="${this._state.endpoints.forgotPassword || '#'}">Forgot Password?</a>
+                    <a href="${this._state.endpoints.login || '#'}">Already have an account? Log in</a>
+                </div>
+            </div>
+        `;
+  
+        this.shadowRoot.querySelector('form').addEventListener('submit', this.handleRegister.bind(this));
+    }
+}
+  
+customElements.define('register-page', RegisterPage);
 
 customElements.define('candidate-card', CandidateCard);
 
