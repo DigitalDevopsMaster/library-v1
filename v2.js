@@ -364,9 +364,14 @@ class WebLayout00 extends HTMLElement {
     const pathname = window.location.pathname
     const isHome = pathname === "/";
 
-    const currentPage = !isHome ? config.pages.find(({ config: pageConfig }) => {
-      return pageConfig.route === pathname
-    }) : { config: {}}
+    let currentPage = {config: {}}
+    
+    
+    if (isHome) {
+      currentPage = config.pages.find(({ config: pageConfig }) => {
+        return pageConfig.route === pathname
+      }) 
+    }
 
     console.log({pathname, config})
     getWidthOnResize(document.body, this.onResize)
@@ -561,6 +566,11 @@ class WebLayout00 extends HTMLElement {
         }
         .header-full-screen {
         }
+        layout-footer {
+          display: ${currentPage.config.hideLayout ? "none" : "flex" };
+          
+        }
+
       </style>
       <layout-header>
         <header>
