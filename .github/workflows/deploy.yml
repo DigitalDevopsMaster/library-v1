@@ -23,13 +23,11 @@ jobs:
 
       - name: Obfuscate code
         run: |
-          # Asegúrate de que los archivos existan antes de la ofuscación
           echo "Checking for source files:"
           ls -la  # Lista los archivos para confirmar que los scripts originales existen
           javascript-obfuscator ./crm-ui-v0.1.js --output ./crm-ui-v0.1-obfuscated.js
           javascript-obfuscator ./v2.js --output ./v2-obfuscated.js
           
-          # Verificar si los archivos ofuscados fueron creados
           echo "Checking for obfuscated files:"
           ls -la  # Lista los archivos en el directorio actual después de la ofuscación
 
@@ -41,16 +39,14 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /var/www/digitaldevops.com.mx/
-            # Elimina los scripts anteriores
-            rm -f crm-ui-v0.1.js v2.js  
-            # Clona el repositorio para obtener la última versión
+            rm -f crm-ui-v0.1.js v2.js  # Elimina los scripts anteriores
+            echo "Cloning repository..."
             git clone git@github.com:DigitalDevopsMaster/library-v1.git temp-repo
-            # Copia el script ofuscado al servidor
-            cp temp-repo/crm-ui-v0.1-obfuscated.js ./crm-ui-v0.1.js  
-            # Copia el segundo script ofuscado
-            cp temp-repo/v2-obfuscated.js ./v2.js  
-            # Limpia el directorio temporal
-            rm -rf temp-repo
+            echo "Copying obfuscated scripts..."
+            cp /home/runner/work/library-v1/crm-ui-v0.1-obfuscated.js ./crm-ui-v0.1.js  # Copia el script ofuscado al servidor
+            cp /home/runner/work/library-v1/v2-obfuscated.js ./v2.js  # Copia el segundo script ofuscado
+            echo "Cleaning up..."
+            rm -rf temp-repo  # Limpia el directorio temporal
             echo '------------------------------------'
             echo 'Deployment to Digital Ocean finished'
             echo '------------------------------------'
