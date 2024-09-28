@@ -283,8 +283,8 @@ async function renderRoute(config) {
               display: ${currentPage.config.hideLayout ? "none" : "flex" };
               
             }
-            layout-header {
-              background: ${currentPage.config.hideLayout ? "transparent" : config.palette.primaryColor};
+            layout-header, layout-footer, layout-content {
+              opacity: ${currentPage.config.hideLayout ? "0" : "1"};
             }
 
 
@@ -300,8 +300,8 @@ async function renderRoute(config) {
                 display: ${currentPage.config.hideLayout ? "none" : "flex" };
               }
                 
-              layout-header {
-                background: ${currentPage.config.hideLayout ? "transparent" : config.palette.primaryColor};
+              layout-header, layout-footer, layout-content {
+                opacity: ${currentPage.config.hideLayout ? "0" : "1"};
               }
 
             </style>
@@ -456,6 +456,7 @@ class WebLayout00 extends HTMLElement {
           position: fixed;
           top: 0;
           left: 0;
+          opacity: 0;
           z-index: 1;
           width: 100%;
         } 
@@ -574,6 +575,7 @@ class WebLayout00 extends HTMLElement {
           flex: 1;
           flex-direction: column;
           display: flex;
+          opacity: 0;
         }
         layout-content.scrolled{
           padding-top: ${this.topbarHeight}px;
@@ -581,7 +583,8 @@ class WebLayout00 extends HTMLElement {
         layout-content.origin{
           padding-top: 0;
         }
-        .header-full-screen {
+        layout-footer {
+          opacity: 0;
         }
    
 
