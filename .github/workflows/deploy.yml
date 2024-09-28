@@ -18,15 +18,12 @@ jobs:
         with:
           node-version: '14'  # Cambia a la versión que estés usando
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build project
-        run: npm run build  # O el comando que uses para construir tu proyecto
+      - name: Install javascript-obfuscator
+        run: npm install -g javascript-obfuscator
 
       - name: Obfuscate code
         run: |
-          npx javascript-obfuscator ./dist --output ./dist-obfuscated  # Cambia ./dist según tu estructura de carpetas
+          javascript-obfuscator ./your-script.js --output ./your-script-obfuscated.js  # Cambia esto a la ruta de tu script
 
       - name: Deploy to DigitalOcean Droplet
         uses: appleboy/ssh-action@master
@@ -36,9 +33,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /var/www/digitaldevops.com.mx/
-            rm -rf library-v1
-            git clone git@github.com:DigitalDevopsMaster/library-v1.git
-            cp -r library-v1/dist-obfuscated/* ./  # Copia los archivos ofuscados
+            rm -f your-script.js  # Elimina el script anterior
+            cp /path/to/your-script-obfuscated.js ./your-script.js  # Copia el script ofuscado al servidor
             echo '------------------------------------'
             echo 'Deployment to Digital Ocean finished'
             echo '------------------------------------'
