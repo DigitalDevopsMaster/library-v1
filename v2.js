@@ -601,7 +601,7 @@ class WebLayout00 extends HTMLElement {
         document.querySelector('web-layout-00').scrollTop += event.deltaY;
       });
       this.onResize(window.innerWidth)
-    }, 300);
+    }, 1500);
   }
   onResize(e) {
     const isMobile = e < config.layout.breakpoint;
