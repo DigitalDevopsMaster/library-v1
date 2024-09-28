@@ -23,9 +23,9 @@ jobs:
 
       - name: Obfuscate code
         run: |
-          javascript-obfuscator ./path/to/crm-ui-v0.1.js --output ./path/to/crm-ui-v0.1-obfuscated.js
-          javascript-obfuscator ./path/to/v2.js --output ./path/to/v2-obfuscated.js
-          
+          javascript-obfuscator ./crm-ui-v0.1.js --output ./crm-ui-v0.1-obfuscated.js
+          javascript-obfuscator ./v2.js --output ./v2-obfuscated.js
+
       - name: Deploy to DigitalOcean Droplet
         uses: appleboy/ssh-action@master
         with:
@@ -35,8 +35,8 @@ jobs:
           script: |
             cd /var/www/digitaldevops.com.mx/
             rm -f crm-ui-v0.1.js v2.js  # Elimina los scripts anteriores
-            cp /path/to/crm-ui-v0.1-obfuscated.js ./crm-ui-v0.1.js  # Copia el script ofuscado al servidor
-            cp /path/to/v2-obfuscated.js ./v2.js  # Copia el script ofuscado al servidor
+            cp /path/to/your-repo/crm-ui-v0.1-obfuscated.js ./crm-ui-v0.1.js  # Copia el script ofuscado al servidor
+            cp /path/to/your-repo/v2-obfuscated.js ./v2.js  # Copia el segundo script ofuscado
             echo '------------------------------------'
             echo 'Deployment to Digital Ocean finished'
             echo '------------------------------------'
