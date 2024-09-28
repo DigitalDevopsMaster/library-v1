@@ -243,8 +243,8 @@ async function renderRoute() {
     `
   } else {
     if (isAuthenticated || !currentPage.config.protected) {
-      const header = document.querySelector('layout-header');
-      header.classList.add('scrolled')
+      // const header = document.querySelector('layout-header');
+      // header.classList.add('scrolled')
   
       document.head.querySelector('title').innerText = `${config.contactInfo.companyName} - ${currentPage.config.name}`
       // if (window.location.pathname !== "/") {
