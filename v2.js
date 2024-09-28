@@ -214,7 +214,7 @@ async function checkSession(token) {
     });
 
     if (!response.ok) {
-      throw new Error('No se pudo verificar la sesión');
+      console.log('No se pudo verificar la sesión');
     }
     const data = await response.json();
     return true;
@@ -362,6 +362,10 @@ class PageNotAuthorized extends HTMLElement {
 class WebLayout00 extends HTMLElement {
   connectedCallback() {
     getWidthOnResize(document.body, this.onResize)
+    const pathname = window.location.pathname
+    const currentPage = config.pages.find(({ config: pageConfig }) => {
+      return pageConfig.route === pathname
+    })
     const resetCSS = `
       html, body, div, span, applet, object, iframe,
       h1, h2, h3, h4, h5, h6, p, blockquote, pre,
@@ -404,7 +408,6 @@ class WebLayout00 extends HTMLElement {
       }
     `
     this.topbarHeight = 48
-
     this.innerHTML = `
       <style>
         ${resetCSS}
@@ -554,17 +557,28 @@ class WebLayout00 extends HTMLElement {
         .header-full-screen {
         }
       </style>
-      <layout-header>
-        <header>
-          <div class="logo-container">
-            <img src="${config.contactInfo.logo}" >
-          </div>
-          <nav></nav>
-          <div class="overlay"></div>
-        </header>
-      </layout-header>
+      
+      ${
+        currentPage.config.hideLayout
+        ? ""
+        : `<layout-header>
+            <header>
+              <div class="logo-container">
+                <img src="${config.contactInfo.logo}" >
+              </div>
+              <nav></nav>
+              <div class="overlay"></div>
+            </header>
+          </layout-header>`
+      }
       <layout-content></layout-content>
-      <layout-footer></layout-footer>
+      ${
+        currentPage.config.hideLayout
+        ? ""
+        : "<layout-footer></layout-footer>"
+      }
+
+      
     `;
     document.querySelector('.logo-container').onclick = () => {
       navigate("/")
@@ -856,7 +870,6 @@ class AppLayout extends HTMLElement {
     document.querySelector(`${currentPage?.name}-page`)?.setAttribute('scroll-position', e.scrollTop)
   }
 }
-
 
 class BurguerMenuButton extends HTMLElement {
   constructor() {
