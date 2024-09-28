@@ -277,13 +277,18 @@ async function renderRoute(config) {
             }
 
             layout-content {
-              opacity: 1;
+              display: flex;
               padding-top: ${currentPage.config.hideLayout ? "0" : "48px" };
             }
             layout-footer, layout-header {
               display: ${currentPage.config.hideLayout ? "none" : "flex" };
               
             }
+            layout-header {
+              background: ${config.palette.primaryColor};
+            }
+
+
             layout-header, layout-footer {
               opacity: ${currentPage.config.hideLayout ? "0" : "1"};
             }
@@ -295,7 +300,7 @@ async function renderRoute(config) {
           `
             <style>
               layout-content {
-                opacity: 1;
+                display: flex;
                 padding-top: ${currentPage.config.hideLayout ? "0" : "48px" };
               }
               layout-footer, layout-header {
@@ -304,6 +309,10 @@ async function renderRoute(config) {
                 
               layout-header, layout-footer {
                 opacity: ${currentPage.config.hideLayout ? "0" : "1"};
+              }
+
+              layout-header {
+                background: ${config.palette.primaryColor};
               }
 
             </style>
