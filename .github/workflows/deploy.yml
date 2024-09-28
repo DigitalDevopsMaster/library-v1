@@ -45,9 +45,10 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /var/www/digitaldevops.com.mx/
+            cd library-v1
             rm -f crm-ui-v0.1.js v2.js  # Elimina los scripts anteriores
-            cp /path/to/your-repo/crm-ui-v0.1-obfuscated.js ./crm-ui-v0.1.js  # Copia el script ofuscado al servidor
-            cp /path/to/your-repo/v2-obfuscated.js ./v2.js  # Copia el segundo script ofuscado
+            cp /home/runner/work/library-v1/crm-ui-v0.1-obfuscated.js ./crm-ui-v0.1.js  # Copia el script ofuscado al servidor
+            cp /home/runner/work/library-v1/v2-obfuscated.js ./v2.js  # Copia el segundo script ofuscado
             echo '------------------------------------'
             echo 'Deployment to Digital Ocean finished'
             echo '------------------------------------'
