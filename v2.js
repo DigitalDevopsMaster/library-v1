@@ -905,6 +905,7 @@ class AppLayout extends HTMLElement {
   }
 }
 
+
 class BurguerMenuButton extends HTMLElement {
   constructor() {
     super();
@@ -1607,7 +1608,599 @@ class DynamicTable extends HTMLElement {
   }
 }
 
+class CarouselComponent extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.indiceActual = 0;
+    this.imagenes = [];
+    this.imagenesPrecargas = [];
+    this.transitionEffect = 'slide';
+    this.showThumbnails = true;
+  }
 
+  connectedCallback() {
+    this.imagenes = this.getAttribute('images').split(',');
+    this.showThumbnails = this.getAttribute('show-thumbnails') !== 'false';
+    this.render();
+    this.precargarImagenes();
+    this.cargarImagen();
+  }
+
+  disconnectedCallback() {
+    this.shadowRoot.querySelector('#prevBtn').removeEventListener('click', this.prevImage);
+    this.shadowRoot.querySelector('#nextBtn').removeEventListener('click', this.nextImage);
+  }
+
+  render() {
+    const width = this.getAttribute('width') || '600';
+    const height = this.getAttribute('height') || '400';
+    
+    this.shadowRoot.innerHTML = `
+      <style>
+        #carouselCtn { 
+          width: ${width}px; 
+          margin: 0 auto; 
+          position: relative; 
+          border-radius: 8px;
+          overflow: hidden;
+          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        #imageWrapper {
+          position: relative;
+          width: 100%;
+          height: ${height}px;
+          overflow: hidden;
+        }
+        .carouselImg { 
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%; 
+          height: 100%; 
+          object-fit: cover;
+          transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+        }
+        button { 
+          position: absolute; 
+          top: 50%; 
+          transform: translateY(-50%); 
+          background-color: rgba(0,0,0,0.5);
+          color: white;
+          border: none;
+          padding: 10px 15px;
+          cursor: pointer;
+          z-index: 10;
+        }
+        button:hover {
+          background-color: rgba(0,0,0,0.7);
+        }
+        #prevBtn { left: 10px; }
+        #nextBtn { right: 10px; }
+        #indicator {
+          position: absolute;
+          bottom: 10px;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          gap: 5px;
+        }
+        .dot {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background-color: rgba(255,255,255,0.5);
+          cursor: pointer;
+        }
+        .dot.active {
+          background-color: white;
+        }
+        #thumbnailsCtn {
+          display: flex;
+          justify-content: center;
+          margin-top: 10px;
+          gap: 10px;
+        }
+        .thumbnail {
+          width: 60px;
+          height: 40px;
+          object-fit: cover;
+          border: 2px solid transparent;
+          cursor: pointer;
+        }
+        .thumbnail.active {
+          border-color: #4CAF50;
+        }
+      </style>
+      <div id="carouselCtn">
+        <div id="imageWrapper">
+          <img class="carouselImg" src="https://placehold.co/${width}x${height}?text=Loading..." alt="Carousel image">
+        </div>
+        <button id="prevBtn">&#10094;</button>
+        <button id="nextBtn">&#10095;</button>
+        <div id="indicator"></div>
+      </div>
+      <div id="thumbnailsCtn" style="display: ${this.showThumbnails ? 'flex' : 'none'}"></div>
+    `;
+
+    this.shadowRoot.querySelector('#prevBtn').addEventListener('click', () => this.cambiarImagen(-1));
+    this.shadowRoot.querySelector('#nextBtn').addEventListener('click', () => this.cambiarImagen(1));
+    this.updateIndicator();
+    this.updateThumbnails();
+  }
+
+  updateIndicator() {
+    const indicator = this.shadowRoot.querySelector('#indicator');
+    indicator.innerHTML = '';
+    this.imagenes.forEach((_, index) => {
+      const dot = document.createElement('div');
+      dot.classList.add('dot');
+      if (index === this.indiceActual) dot.classList.add('active');
+      dot.addEventListener('click', () => this.goToImage(index));
+      indicator.appendChild(dot);
+    });
+  }
+
+  goToImage(index) {
+    const direction = index > this.indiceActual ? 1 : -1;
+    this.cambiarImagen(direction, index);
+  }
+
+  precargarImagenes() {
+    this.imagenes.forEach((src, index) => {
+      let img = new Image();
+      img.src = src;
+      this.imagenesPrecargas[index] = img;
+    });
+  }
+
+  cambiarImagen(direccion, targetIndex = null) {
+    const oldIndex = this.indiceActual;
+    if (targetIndex !== null) {
+      this.indiceActual = targetIndex;
+    } else {
+      this.indiceActual += direccion;
+      if (this.indiceActual < 0) this.indiceActual = this.imagenes.length - 1;
+      if (this.indiceActual >= this.imagenes.length) this.indiceActual = 0;
+    }
+    
+    const imageWrapper = this.shadowRoot.querySelector('#imageWrapper');
+    const existingImg = imageWrapper.querySelector('.carouselImg');
+    
+    // Create a new image element for the incoming slide
+    const newImg = document.createElement('img');
+    newImg.src = this.imagenesPrecargas[this.indiceActual].src;
+    newImg.className = 'carouselImg';
+    
+    // Apply transition effect
+    switch(this.transitionEffect) {
+      case 'slide':
+        newImg.style.transform = `translateX(${direccion > 0 ? '100%' : '-100%'})`;
+        break;
+      case 'fade':
+        newImg.style.opacity = '0';
+        break;
+      case 'zoom':
+        newImg.style.transform = 'scale(0.5)';
+        newImg.style.opacity = '0';
+        break;
+      case 'rotate':
+        newImg.style.transform = `rotate(${direccion > 0 ? '-90deg' : '90deg'})`;
+        newImg.style.opacity = '0';
+        break;
+    }
+    
+    // Add the new image to the wrapper
+    imageWrapper.appendChild(newImg);
+    
+    // Trigger reflow
+    void newImg.offsetWidth;
+    
+    // Animate both images
+    switch(this.transitionEffect) {
+      case 'slide':
+        existingImg.style.transform = `translateX(${direccion > 0 ? '-100%' : '100%'})`;
+        newImg.style.transform = 'translateX(0)';
+        break;
+      case 'fade':
+        existingImg.style.opacity = '0';
+        newImg.style.opacity = '1';
+        break;
+      case 'zoom':
+        existingImg.style.transform = 'scale(1.5)';
+        existingImg.style.opacity = '0';
+        newImg.style.transform = 'scale(1)';
+        newImg.style.opacity = '1';
+        break;
+      case 'rotate':
+        existingImg.style.transform = `rotate(${direccion > 0 ? '90deg' : '-90deg'})`;
+        existingImg.style.opacity = '0';
+        newImg.style.transform = 'rotate(0)';
+        newImg.style.opacity = '1';
+        break;
+    }
+    
+    // After animation, remove old image
+    setTimeout(() => {
+      existingImg.remove();
+    }, 500);
+    
+    this.updateIndicator();
+    this.updateThumbnails();
+  }
+
+  cargarImagen() {
+    const imageWrapper = this.shadowRoot.querySelector('#imageWrapper');
+    const carouselImg = imageWrapper.querySelector('.carouselImg');
+    if (this.imagenesPrecargas[this.indiceActual].complete) {
+      carouselImg.src = this.imagenesPrecargas[this.indiceActual].src;
+    } else {
+      carouselImg.src = `https://placehold.co/${this.getAttribute('width')}x${this.getAttribute('height')}?text=Loading...`;
+      this.imagenesPrecargas[this.indiceActual].onload = () => {
+        carouselImg.src = this.imagenesPrecargas[this.indiceActual].src;
+      };
+    }
+    this.updateThumbnails();
+  }
+
+  updateImages(newImages) {
+    this.setAttribute('images', newImages.join(','));
+    this.imagenes = newImages;
+    this.imagenesPrecargas = [];
+    this.precargarImagenes();
+    this.indiceActual = 0;
+    this.cargarImagen();
+    this.updateIndicator();
+    this.updateThumbnails();
+  }
+
+  checkLoadingState() {
+    const carouselImg = this.shadowRoot.querySelector('.carouselImg');
+    if (carouselImg.src.includes('placehold.co')) {
+      this.cargarImagen();
+    }
+  }
+
+  setTransitionEffect(effect) {
+    this.transitionEffect = effect;
+  }
+  
+  updateThumbnails() {
+    const thumbnailsCtn = this.shadowRoot.querySelector('#thumbnailsCtn');
+    thumbnailsCtn.innerHTML = '';
+    this.imagenes.forEach((src, index) => {
+      const thumbnail = document.createElement('img');
+      thumbnail.src = src;
+      thumbnail.className = 'thumbnail';
+      if (index === this.indiceActual) thumbnail.classList.add('active');
+      thumbnail.onclick = () => this.goToImage(index);
+      thumbnailsCtn.appendChild(thumbnail);
+    });
+  }
+
+  setShowThumbnails(show) {
+    this.showThumbnails = show;
+    const thumbnailsCtn = this.shadowRoot.querySelector('#thumbnailsCtn');
+    thumbnailsCtn.style.display = show ? 'flex' : 'none';
+  }
+}
+
+class ControlPanelComponent extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+  }
+
+  connectedCallback() {
+    this.render();
+    this.setupEventListeners();
+  }
+
+  render() {
+    this.shadowRoot.innerHTML = `
+      <style>
+        :host {
+          display: block;
+          background-color: white;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .slider-container {
+          display: flex;
+          align-items: center;
+          margin-bottom: 10px;
+        }
+        .slider-container label {
+          width: 60px;
+        }
+        .slider-container input[type="range"] {
+          flex-grow: 1;
+          margin: 0 10px;
+        }
+        button {
+          background-color: #4CAF50;
+          color: white;
+          border: none;
+          padding: 10px 15px;
+          border-radius: 4px;
+          cursor: pointer;
+          margin-right: 10px;
+          margin-bottom: 5px;
+        }
+        button:hover {
+          background-color: #45a049;
+        }
+        button:disabled {
+          background-color: #cccccc;
+          cursor: not-allowed;
+        }
+        .transition-btn {
+          background-color: #2196F3;
+          margin-right: 5px;
+        }
+        .transition-btn:hover {
+          background-color: #0b7dda;
+        }
+        .transition-btn.active {
+          background-color: #0b7dda;
+          font-weight: bold;
+        }
+      </style>
+      <div class="slider-container">
+        <label for="widthSlider">Width: </label>
+        <input type="range" id="widthSlider" min="200" max="1000" value="600">
+        <span id="widthValue">600</span>px
+      </div>
+      
+      <div class="slider-container">
+        <label for="heightSlider">Height: </label>
+        <input type="range" id="heightSlider" min="100" max="800" value="400">
+        <span id="heightValue">400</span>px
+      </div>
+      
+      <button id="fullWidthBtn">Set Full Width</button>
+      <button id="fullHeightBtn">Set Full Height</button>
+      
+      <div>
+        <h4>Transition Effects:</h4>
+        <button class="transition-btn active" data-effect="slide">Slide</button>
+        <button class="transition-btn" data-effect="fade">Fade</button>
+        <button class="transition-btn" data-effect="zoom">Zoom</button>
+        <button class="transition-btn" data-effect="rotate">Rotate</button>
+      </div>
+      
+      <div style="margin-top: 10px;">
+        <input type="checkbox" id="showThumbnailsCb" checked>
+        <label for="showThumbnailsCb">Show Thumbnails</label>
+      </div>
+    `;
+  }
+
+  setupEventListeners() {
+    const widthSlider = this.shadowRoot.getElementById('widthSlider');
+    const heightSlider = this.shadowRoot.getElementById('heightSlider');
+    const fullWidthBtn = this.shadowRoot.getElementById('fullWidthBtn');
+    const fullHeightBtn = this.shadowRoot.getElementById('fullHeightBtn');
+    const transitionBtns = this.shadowRoot.querySelectorAll('.transition-btn');
+    const showThumbnailsCb = this.shadowRoot.getElementById('showThumbnailsCb');
+
+    widthSlider.addEventListener('input', () => this.updateCarousel());
+    heightSlider.addEventListener('input', () => this.updateCarousel());
+    fullWidthBtn.addEventListener('click', () => this.setFullWidth());
+    fullHeightBtn.addEventListener('click', () => this.setFullHeight());
+    transitionBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => this.setTransition(e.target.dataset.effect));
+    });
+    showThumbnailsCb.addEventListener('change', () => this.toggleThumbnails());
+
+    tippy(widthSlider, { content: 'Adjust carousel width' });
+    tippy(heightSlider, { content: 'Adjust carousel height' });
+  }
+
+  updateCarousel() {
+    const widthSlider = this.shadowRoot.getElementById('widthSlider');
+    const heightSlider = this.shadowRoot.getElementById('heightSlider');
+    const widthValue = this.shadowRoot.getElementById('widthValue');
+    const heightValue = this.shadowRoot.getElementById('heightValue');
+    const width = widthSlider.value;
+    const height = heightSlider.value;
+    widthValue.textContent = width;
+    heightValue.textContent = height;
+    const carousel = document.querySelector('carousel-component');
+    carousel.setAttribute('width', width);
+    carousel.setAttribute('height', height);
+    carousel.render();
+    setTimeout(() => carousel.checkLoadingState(), 100);
+  }
+
+  setFullWidth() {
+    const carousel = document.querySelector('carousel-component');
+    const fullWidth = document.body.clientWidth;
+    carousel.setAttribute('width', fullWidth);
+    this.shadowRoot.getElementById('widthSlider').value = fullWidth;
+    this.shadowRoot.getElementById('widthValue').textContent = fullWidth;
+    carousel.render();
+    setTimeout(() => carousel.checkLoadingState(), 100);
+  }
+
+  setFullHeight() {
+    const carousel = document.querySelector('carousel-component');
+    const fullHeight = window.innerHeight;
+    carousel.setAttribute('height', fullHeight);
+    this.shadowRoot.getElementById('heightSlider').value = fullHeight;
+    this.shadowRoot.getElementById('heightValue').textContent = fullHeight;
+    carousel.render();
+    setTimeout(() => carousel.checkLoadingState(), 100);
+  }
+
+  setTransition(effect) {
+    const carousel = document.querySelector('carousel-component');
+    carousel.setTransitionEffect(effect);
+    
+    // Update active button
+    const buttons = this.shadowRoot.querySelectorAll('.transition-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    this.shadowRoot.querySelector(`[data-effect="${effect}"]`).classList.add('active');
+  }
+
+  toggleThumbnails() {
+    const carousel = document.querySelector('carousel-component');
+    const showThumbnailsCb = this.shadowRoot.getElementById('showThumbnailsCb');
+    carousel.setShowThumbnails(showThumbnailsCb.checked);
+  }
+}
+
+class ImageUrlListComponent extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+  }
+
+  connectedCallback() {
+    this.render();
+    this.setupEventListeners();
+  }
+
+  render() {
+    this.shadowRoot.innerHTML = `
+      <style>
+        :host {
+          display: block;
+          background-color: white;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .image-url-inputs {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          margin-bottom: 10px;
+        }
+        .image-url-inputs input {
+          width: calc(100% - 30px);
+          padding: 5px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+        }
+        button {
+          background-color: #4CAF50;
+          color: white;
+          border: none;
+          padding: 10px 15px;
+          border-radius: 4px;
+          cursor: pointer;
+          margin-right: 10px;
+        }
+        button:hover {
+          background-color: #45a049;
+        }
+        button:disabled {
+          background-color: #cccccc;
+          cursor: not-allowed;
+        }
+        .delete-btn {
+          background-color: #f44336;
+          color: white;
+          border: none;
+          padding: 5px 10px;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 12px;
+        }
+        .delete-btn:hover {
+          background-color: #d32f2f;
+        }
+        .image-url-container {
+          display: flex;
+          align-items: center;
+        }
+      </style>
+      <div id="imageUrlInputsEl" class="image-url-inputs">
+        <div class="image-url-container">
+          <input type="text" class="imageUrlInput" value="https://i.blogs.es/16b956/gmail-nuevo-logo-google-workspace/1366_2000.jpg">
+          <button class="delete-btn">Delete</button>
+        </div>
+        <div class="image-url-container">
+          <input type="text" class="imageUrlInput" value="https://larepublica.cronosmedia.glr.pe/original/2023/05/21/646a75b95c7fa54b8c5ede50.jpg">
+          <button class="delete-btn">Delete</button>
+        </div>
+        <div class="image-url-container">
+          <input type="text" class="imageUrlInput" value="https://9to5google.com/wp-content/uploads/sites/4/2023/03/gmail-logo-circle-3.jpg?quality=82&strip=all&w=1600">
+          <button class="delete-btn">Delete</button>
+        </div>
+      </div>
+      <button id="addMoreBtn">Add More</button>
+      <button id="updateImagesBtn">Update Images</button>
+    `;
+  }
+
+  setupEventListeners() {
+    this.shadowRoot.getElementById('addMoreBtn').addEventListener('click', () => this.addImageUrlInput());
+    this.shadowRoot.getElementById('updateImagesBtn').addEventListener('click', () => this.updateCarouselImages());
+    this.shadowRoot.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => this.deleteImageInput(e.target));
+    });
+
+    tippy(this.shadowRoot.getElementById('addMoreBtn'), { content: 'Add another image URL input' });
+    tippy(this.shadowRoot.getElementById('updateImagesBtn'), { content: 'Update carousel with new images' });
+  }
+
+  addImageUrlInput() {
+    const inputsContainer = this.shadowRoot.getElementById('imageUrlInputsEl');
+    const inputs = inputsContainer.getElementsByClassName('imageUrlInput');
+    
+    if (inputs.length < 10) {
+      const container = document.createElement('div');
+      container.className = 'image-url-container';
+      
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'imageUrlInput';
+      input.placeholder = 'Enter image URL';
+      
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'delete-btn';
+      deleteBtn.textContent = 'Delete';
+      deleteBtn.addEventListener('click', (e) => this.deleteImageInput(e.target));
+      
+      container.appendChild(input);
+      container.appendChild(deleteBtn);
+      inputsContainer.appendChild(container);
+    } else {
+      alert('Maximum number of image inputs reached (10).');
+    }
+    
+    this.shadowRoot.getElementById('addMoreBtn').disabled = inputs.length >= 10;
+  }
+
+  deleteImageInput(btn) {
+    const container = btn.parentElement;
+    container.remove();
+    this.shadowRoot.getElementById('addMoreBtn').disabled = false;
+  }
+
+  updateCarouselImages() {
+    const updateImagesBtn = this.shadowRoot.getElementById('updateImagesBtn');
+    updateImagesBtn.disabled = true;
+    updateImagesBtn.textContent = "⏳ Updating...";
+    const inputs = this.shadowRoot.querySelectorAll('.imageUrlInput');
+    const newImages = Array.from(inputs).map(input => input.value).filter(url => url.trim() !== '');
+    if (newImages.length > 0) {
+      const carousel = document.querySelector('carousel-component');
+      carousel.updateImages(newImages);
+    }
+    setTimeout(() => {
+      updateImagesBtn.disabled = false;
+      updateImagesBtn.textContent = 'Update Images';
+    }, 1000);
+  }
+}
+
+customElements.define('carousel-component', CarouselComponent);
+customElements.define('control-panel-component', ControlPanelComponent);
+customElements.define('image-url-list-component', ImageUrlListComponent);
 customElements.define('dynamic-table', DynamicTable);
 customElements.define('layout-footer', LayoutFooter);
 customElements.define('image-carousel', ImageCarousel);

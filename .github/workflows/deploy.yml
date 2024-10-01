@@ -28,20 +28,20 @@ jobs:
 
             # cd library-v1
 
-            # # Instalar javascript-obfuscator localmente
-            # npm install javascript-obfuscator
+            # Instalar javascript-obfuscator localmente
+            npm install javascript-obfuscator
 
             
-            # # Ejecutar el obfuscador y Reemplazar archivos originales con archivos ofuscados
+            # Ejecutar el obfuscador y Reemplazar archivos originales con archivos ofuscados
             
-            # npx javascript-obfuscator ./crm-ui-v0.1.js --output ./crm-ui-v0.1-obfuscated.js
-            # rm ./crm-ui-v0.1.js
-            # mv ./crm-ui-v0.1-obfuscated.js ./crm-ui-v0.1.js
+            npx javascript-obfuscator ./crm-ui-v0.1.js --output ./crm-ui-v0.1-obfuscated.js
+            rm ./crm-ui-v0.1.js
+            mv ./crm-ui-v0.1-obfuscated.js ./crm-ui-v0.1.js
             
-            # npx javascript-obfuscator ./v2.js --output ./v2-obfuscated.js
-            # rm ./v2.js
-            # mv ./v2-obfuscated.js ./v2.js
+            npx javascript-obfuscator ./v2.js --output ./v2-obfuscated.js
+            rm ./v2.js
+            mv ./v2-obfuscated.js ./v2.js
 
-            # echo '------------------------------------'
-            # echo 'Deployment to digital ocean finished'
-            # echo '------------------------------------'
+            echo '------------------------------------'
+            echo 'Deployment to digital ocean finished'
+            echo '------------------------------------'
