@@ -212,10 +212,7 @@ async function checkSession(token) {
         'Content-Type': 'application/json'
       }
     });
-
-    if (!response.ok) {
-      throw new Error('No se pudo verificar la sesión');
-    }
+   
     const data = await response.json();
     return true;
     // Aquí puedes manejar la respuesta según tus necesidades
@@ -841,7 +838,6 @@ class AppLayout extends HTMLElement {
           transition: ease-in-out .3s all; 
           flex: 1;
           flex-direction: column;
-          display: none;
         }
         layout-content.scrolled{
           padding-top: ${this.topbarHeight}px;
