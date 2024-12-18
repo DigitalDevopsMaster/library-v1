@@ -137,7 +137,6 @@ export const loadFrontend = async (cfg) => {
       button.onclick = (e) => {
         e.preventDefault()
         navigate(config.route)
-        
       }
 
       if(!config.disableMenuButton) {
@@ -146,15 +145,15 @@ export const loadFrontend = async (cfg) => {
         }
       } else if (config.disableMenuButton === "auth") {
         if (!isAuthenticated) {
-          nav.append(button)
+          nav?.append(button)
         }
       }
     });
-    nav.append(navLogo)
+    nav?.append(navLogo)
 
     
     
-    menuButton.addEventListener('menu-click', (e) => {
+    menuButton?.addEventListener('menu-click', (e) => {
       const isOpen = menuButton.shadowRoot.querySelector('button').classList.contains('open')
       if (isMobile) {
         if (isOpen) {
@@ -164,7 +163,7 @@ export const loadFrontend = async (cfg) => {
         }
       }
     });
-    header.append(menuButton)
+    header?.append(menuButton)
   } catch (error) {
     console.error('Error:', error);
   }
@@ -238,10 +237,6 @@ async function renderRoute() {
     `
   } else {
     if (isAuthenticated || !currentPage.config.protected) {
- 
-      const header = document.querySelector('layout-header');
-      header.classList.add('scrolled')
-  
       document.head.querySelector('title').innerText = `${config.contactInfo.companyName} - ${currentPage.config.name}`
       // if (window.location.pathname !== "/") {
       //   header.classList.add('scrolled')
@@ -654,6 +649,13 @@ class WebLayout00 extends HTMLElement {
 
 class AppLayout extends HTMLElement {
   connectedCallback() {
+    this.render()
+  }
+  async render() {
+    const layoutConfig = config.layout || {}; // Maneja si layout no existe
+    const showHeader = layoutConfig.showHeader === undefined ? true : layoutConfig.showHeader;
+    const isAuthenticated = await checkSession(localStorage.getItem('token'));
+  
     getWidthOnResize(document.body, this.onResize)
     const resetCSS = `
       html, body, div, span, applet, object, iframe,
@@ -697,6 +699,24 @@ class AppLayout extends HTMLElement {
       }
     `
     this.topbarHeight = 48
+
+    let renderHeader = false;
+    switch (showHeader) {
+      case true:
+        renderHeader = true;
+        break;
+      case false:
+        renderHeader = false;
+        break;
+      case 'auth':
+        renderHeader = isAuthenticated;
+        break;
+      case '!auth':
+        renderHeader = !isAuthenticated;
+        break;
+      default:
+        renderHeader = false; // Comportamiento por defecto
+    }
 
     this.innerHTML = `
       <style>
@@ -847,25 +867,30 @@ class AppLayout extends HTMLElement {
         .header-full-screen {
         }
       </style>
-      <layout-header>
-        <header>
-          <div class="logo-container">
-            <img src="${config.contactInfo.logo}" >
-          </div>
-          <nav></nav>
-          <div class="overlay"></div>
-        </header>
-      </layout-header>
+      
+      ${renderHeader ? `
+        <layout-header>
+          <header>
+            <div class="logo-container">
+              <img src="${config.contactInfo.logo}" >
+            </div>
+            <nav></nav>
+            <div class="overlay"></div>
+          </header>
+        </layout-header>
+      ` : ''}
       <layout-content></layout-content>
     `;
-    document.querySelector('.logo-container').onclick = () => {
-      navigate("/")
-    }
-    document.querySelector('.overlay').onclick = () => {
-      document.querySelector('burguer-menu-button').shadowRoot.querySelector('button').click()
+    if (document.querySelector('.logo-container')) {
+      document.querySelector('.logo-container').onclick = () => {
+        navigate("/")
+      }
+      document.querySelector('.overlay').onclick = () => {
+        document.querySelector('burguer-menu-button').shadowRoot.querySelector('button').click()
+      }
     }
     getScrollPosition(document.querySelector('app-layout'), (e) => this.onScroll(e))
-    document.querySelector('img').addEventListener('wheel', (event) => {
+    document.addEventListener('wheel', (event) => {
       event.stopPropagation();
       document.querySelector('app-layout').scrollTop += event.deltaY;
     });
