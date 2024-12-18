@@ -203,7 +203,6 @@ async function getJScontent(nombreArchivo) {
 }
 
 async function checkSession(token) {
-
   try {
     const response = await fetch('/api/session', {
       method: 'GET',
@@ -214,7 +213,7 @@ async function checkSession(token) {
     });
    
     const data = await response.json();
-    return true;
+    return data.user;
     // Aquí puedes manejar la respuesta según tus necesidades
     // Por ejemplo, actualizar el UI con información del usuario autenticado
 
@@ -230,7 +229,6 @@ async function renderRoute() {
   const isAuthenticated = await checkSession(localStorage.getItem('token'));
 
 
-
   const currentPage = config.pages.find(({ config: pageConfig }) => {
     return pageConfig.route === pathname
   })
@@ -240,6 +238,7 @@ async function renderRoute() {
     `
   } else {
     if (isAuthenticated || !currentPage.config.protected) {
+ 
       const header = document.querySelector('layout-header');
       header.classList.add('scrolled')
   
